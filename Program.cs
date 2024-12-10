@@ -1,4 +1,5 @@
 using Connectify.Data;
+using Connectify.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
