@@ -1,0 +1,34 @@
+﻿@*
+    view-ul pentru show-ul unui grup
+*@
+
+@model Connectify.Models.Group
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Model.GroupName</h3>
+    </div>
+
+    @* </div> *@
+    @* <div class="card-footer"> *@
+    @*     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a> *@
+    @*     <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a> *@
+    @* </div> *@
+</div>
+
+
+@* afisarea mesajelor din grup *@
+<h2 class="text-center">Messages</h2>
+<br />
+
+@foreach (var message in Model.Messages)
+{
+    <div class="card">
+        <div class="card-body">
+            <p>@message.TextMessage</p>
+        </div>
+        <div class="card-footer">
+            <p>@message.SentAt</p>
+        </div>
+    </div>
+}
