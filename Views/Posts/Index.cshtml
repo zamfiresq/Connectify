@@ -1,0 +1,24 @@
+﻿<h2>Posts</h2>
+<br />
+
+@foreach (var post in ViewBag.Posts)
+{
+    <p>@post.Content</p>
+    <p>@post.PostedAt</p>
+
+    <br />
+    <a class="btn btn-success" href="/Posts/Show/@post.Id">See post</a>
+    <br />
+    <br />
+    <a class="btn btn-info" href="/Posts/Edit/@post.Id">Edit post</a>
+    <hr />
+
+}
+
+<a href="/Posts/Create" class="btn btn-success">Add post</a>
+<br />
+
+
+
+
+

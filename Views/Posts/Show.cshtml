@@ -1,0 +1,115 @@
+﻿<h2>Post</h2>
+<br />
+
+<p>@ViewBag.Post.Content</p>
+<p>@ViewBag.Post.PostedAt</p>
+
+<br />
+
+<form method="post" action="/Posts/Delete/@ViewBag.Post.Id">
+
+    <button type="submit" class="btn btn-danger">Delete post</button>
+
+</form>
+
+<br />
+
+<a href="/Posts/Index" class="btn btn-success">See all posts</a>
+
+
+
+<br />
+<br />
+
+@* Afisare comentarii impreuna cu butoanele de editare si stergere *@ 
+
+
+
+@foreach (var comm in ViewBag.Post.Comments)
+
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2"></div>
+
+            <div class="col-md-8">
+
+                <div>
+
+                    <p>@comm.Text</p>
+                    <small>@comm.CommentedAt</small>
+
+                </div>
+                <br>
+
+                <div class="d-flex">
+
+                    <div>
+
+                        <a class="btn btn-outline-primary" href="/Comments/Edit/@comm.Id"><i class="bi bi-pencil-square"></i>Edit</a>
+
+                    </div>
+
+                    <div>
+
+                        <form method="post" asp-controller="Comments" asp-action="Delete" asp-route-id="@comm.Id">
+
+                            <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i>Sterge</button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+                <br />
+
+            </div>
+
+            <div class="col-md-2"></div>
+
+        </div>
+
+    </div>
+} 
+
+
+@* Afisarea formularului in care se poate adauga un comentariu *@
+
+ <div class="container">
+
+    <div class="row">
+
+        <div class="col-md-2"></div>
+
+        <div class="col-md-8">
+
+            <div class="card">
+
+                <form method="post" asp-controller="Comments" asp-action="New">
+
+                    <div class="card-body">
+
+                        <input type="hidden" name="PostId" value="@ViewBag.Post.Id" />
+
+                        <label>Comm content</label>
+                        <br />
+
+                        <textarea class="form-control" name="Text"></textarea>
+                        <br />
+
+                        <button class="btn btn-success " type="submit">Add comment</button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-2"></div>
+
+    </div>
+
+</div>
