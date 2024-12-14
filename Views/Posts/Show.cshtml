@@ -23,6 +23,26 @@
         <small class="text-muted d-block mb-3">
             @ViewBag.Post.PostedAt.ToString("dd MMMM yyyy HH:mm")
         </small>
+
+        <!-- Display Attached Media -->
+        @if (!string.IsNullOrEmpty(ViewBag.Post.Media))
+        {
+            <div class="post-media mt-3">
+                @if (ViewBag.Post.Media.EndsWith(".mp4") || ViewBag.Post.Media.EndsWith(".webm") || ViewBag.Post.Media.EndsWith(".ogg"))
+                {
+                    <video controls class="img-fluid rounded" style="max-width: 100%; height: auto;">
+                        <source src="@ViewBag.Post.Media" type="video/mp4">
+                        <source src="@ViewBag.Post.Media" type="video/webm">
+                        <source src="@ViewBag.Post.Media" type="video/ogg">
+                        Your browser does not support the video tag.
+                    </video>
+                }
+                else
+                {
+                    <img src="@ViewBag.Post.Media" alt="Post Media" class="img-fluid rounded" style="max-width: 100%; height: auto;" />
+                }
+            </div>
+        }
     </div>
 
     <hr class="mt-4" />
@@ -82,4 +102,4 @@
             </form>
         </div>
     </div>
-
+</div>

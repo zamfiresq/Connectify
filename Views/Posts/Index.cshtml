@@ -92,21 +92,42 @@
                     </div>
                     <div class="post-card-body">
                         <p>@post.Content</p>
+
+                        <!-- Media Section -->
+                        @if (!string.IsNullOrEmpty(post.Media))
+                        {
+                            <!-- If it's an image -->
+                            @if (post.Media.EndsWith(".jpg") || post.Media.EndsWith(".jpeg") || post.Media.EndsWith(".png") || post.Media.EndsWith(".gif"))
+                            {
+                                <div class="text-center mb-3">
+                                    <img src="@post.Media" alt="Post Image" class="img-fluid rounded" style="max-height: 300px; object-fit: cover;">
+                                </div>
+                            }
+                            <!-- If it's a video -->
+                            @if (post.Media.EndsWith(".mp4") || post.Media.EndsWith(".mov") || post.Media.EndsWith(".avi"))
+                            {
+                                <div class="text-center mb-3">
+                                    <video controls class="w-100 rounded">
+                                        <source src="@post.Media" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            }
+                        }
                     </div>
                     <div class="post-footer">
                         <div class="post-actions d-flex justify-content-between align-items-center">
-                            <!-- Left-aligned Edit Post button -->
+                            <!-- Edit Post Button -->
                             <a class="btn btn-sm btn-warning" href="/Posts/Edit/@post.Id">Edit Post</a>
 
-                            <!-- Right-aligned Comment Count as plain underlined text -->
+                            <!-- Comment Count -->
                             <a class="text-decoration-underline text-info" href="/Posts/Show/@post.Id">@post.CommentCount comments</a>
                         </div>
-
                     </div>
                 </div>
             }
-
         </div>
+
     </div>
 
   
