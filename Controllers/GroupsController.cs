@@ -18,11 +18,20 @@ namespace Connectify.Controllers
             this.dbc = dbc;
         }
 
+
         // index - afisarea tuturor grupurilor
         public IActionResult Index()
         {
+            var grup = dbc.Groups;
+            ViewBag.Groups = grup;
+
+            if (TempData.ContainsKey("message"))
+            {
+                ViewBag.Message = TempData["message"];
+            }
             return View();
         }
+
 
         // show - afisarea unui grup specific dupa id
         public IActionResult Show(int id)
@@ -36,35 +45,74 @@ namespace Connectify.Controllers
         }
 
         // show - pentru mesajele unui grup
+        [HttpPost]
         public IActionResult Show(int id, [FromForm] Message mesaj)
         {
-            // conditie pentru rolul userului
+            mesaj.SentAt = DateTime.Now;
 
-            // daca este valid
-            if (ModelState.IsValid)
+            try
             {
-                // adaugare mesaj in grup
-                mesaj.GroupId = id;
-                mesaj.SentAt = DateTime.Now;
                 dbc.Messages.Add(mesaj);
                 dbc.SaveChanges();
-
-                // redirect catre pagina grupului
                 return Redirect("/Groups/Show/" + mesaj.GroupId);
             }
 
+            catch (Exception ex)
+            {
+                Group grp = dbc.Groups.Include("Comments")
+                            .Where(grp => grp.Id == mesaj.GroupId)
+                            .First();
+
+                return View(grp);
+            }
+        }
+
+        // formular pentru crearea grupului
+        public IActionResult New(Group grup)
+        {
+            if (ModelState.IsValid)
+            {
+                dbc.Groups.Add(grup);
+                dbc.SaveChanges();
+                TempData["message"] = "Group created successfully!";
+                return RedirectToAction("Index");
+            }
+            return View(grup);
+        }
+
+
+        // editarea unui grup
+        public IActionResult Edit(int id)
+        {
+            Group grup = dbc.Groups.Find(id);
+            return View(grup);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(int id, Group requestGroup)
+        {
+            Group grup = dbc.Groups.Find(id);
+            if (ModelState.IsValid)
+            {
+                grup.GroupName = requestGroup.GroupName;
+                grup.Description = requestGroup.Description;
+                dbc.SaveChanges();
+                return RedirectToAction("Index");
+            }
             else
             {
-                // daca nu este valid
-                Group group = dbc.Groups.Include("Messages")
-                        .Where(g => g.Id == id)
-                        .First();
-                return View(group);
-
+                return View(requestGroup);
             }
+        }
 
-            // tempdata - pentru a afisa mesajul de eroare 
-            TempData["message"] = "You're not allowed to send messages here!";
+        // stergerea unui grup
+        [HttpPost]
+        public IActionResult Delete(int id)
+        {
+            Group grup = dbc.Groups.Find(id);
+            dbc.Groups.Remove(grup);
+            dbc.SaveChanges();
+            TempData["message"] = "Group deleted successfully!";
             return RedirectToAction("Index");
         }
     }

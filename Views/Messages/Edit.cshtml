@@ -1,0 +1,22 @@
+﻿@model Connectify.Models.Message
+<h2>Edit your message</h2>
+<br />
+<br />
+
+<div>
+    @using (Html.BeginForm(controllerName: "Messages", actionName: "Edit", method: FormMethod.Post, routeValues: new {IDataTokensMetadata = Model.Id}))
+    {
+        @Html.Label("TextMessage", "Message content")
+        <br />
+
+@*         @Html.Editor("TextMessage", new {@class = "form-control"})
+        <br /> *@
+
+        @Html.ValidationMessage("TextMessage", null, new {@class = "text-danger"})
+
+        <br />
+        <br />
+
+        <button class="btn btn-success" type="submit"> Edit message</button>
+    }
+</div>

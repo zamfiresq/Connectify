@@ -1,1 +1,22 @@
-﻿
+﻿@{
+    ViewBag.GroupName = "All groups";
+}
+
+<h2>@ViewBag.GroupName</h2>
+<br />
+
+
+
+@foreach (var grup in ViewBag.Groups)
+{
+    @Html.Label("GroupName", "Group Name:")
+    <p>@grup.GroupName</p>
+
+    //verificam daca grupul are o decriere
+    @if (!string.IsNullOrEmpty(grup.Description))
+    {
+        @Html.Label("Description", "Group Description:")
+        <p>@grup.Description</p>
+        <br />
+    }
+}

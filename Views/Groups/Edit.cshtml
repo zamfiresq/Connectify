@@ -1,0 +1,72 @@
+﻿@model Connectify.Models.Group
+
+@*Afisarea unui grup*@
+
+<div class="container">
+    <h2>Edit group</h2>
+    <br />
+    <br />
+    <div>
+        @using (Html.BeginForm(controllerName: "Groups", actionName: "Edit", method: FormMethod.Post, routeValues: new { id = Model.Id }))
+        {
+            @Html.Label("GroupName", "Group Name:")
+            <br />
+            @Html.Editor("GroupName", new { @class = "form-control" })
+            <br />
+            @Html.ValidationMessage("GroupName", null, new { @class = "text-danger" })
+            <br />
+            <br />
+            @Html.Label("Description", "Group Description:")
+            <br />
+            @Html.Editor("Description", new { @class = "form-control" })
+            <br />
+            @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
+            <br />
+            <br />
+            <button class="btn btn-success" type="submit"> Edit group</button>
+        }
+    </div>
+
+</div>
+
+@*Afisarea mesajelor dintr-un grup*@
+<div class="container">
+    <h2>Messages in this group</h2>
+    <br />
+    <br />
+    @foreach (var message in Model.Messages)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@message.TextMessage</h5>
+                <p class="card-text">@message.SentAt</p>
+                <a href="@Url.Action("Edit", "Messages", new { id = message.Id })" class="btn btn-primary">Edit</a>
+                <a href="@Url.Action("Delete", "Messages", new { id = message.Id })" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    }
+
+</div>
+
+@*Adaugarea unui mesaj in grup*@
+<div class="container">
+    <h2>Add a message to this group</h2>
+    <br />
+    <br />
+    <div>
+        @using (Html.BeginForm(controllerName: "Messages", actionName: "Create", method: FormMethod.Post, routeValues: new { groupId = Model.Id }))
+        {
+            @Html.Label("TextMessage", "Message content")
+            <br />
+            @Html.Editor("TextMessage", new { @class = "form-control" })
+            <br />
+            @Html.ValidationMessage("TextMessage", null, new { @class = "text-danger" })
+            <br />
+            <br />
+            <button class="btn btn-success" type="submit"> Add message</button>
+        }
+    </div>
+
+</div>
+
+
