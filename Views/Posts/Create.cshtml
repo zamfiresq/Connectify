@@ -1,17 +1,27 @@
-﻿<h2>Create a new post</h2>
+﻿@{
+    Layout = "_Layout"; // Ensure you have the appropriate layout set for Bootstrap CSS and JS files
+}
 
-<form method="post" action="/Posts/Create">
+<h2 class="text-center my-5">Create a New Post</h2>
 
-    
-    <label>Post content</label>
+<div class="container">
+    <form method="post" action="/Posts/Create" enctype="multipart/form-data">
+        <!-- Form Group for Content -->
+        <div class="mb-4">
+            <label for="Content" class="form-label">Post Content</label>
+            <textarea class="form-control" id="Content" name="Content" required></textarea>
+        </div>
 
-    <textarea name="Content"></textarea>
+        <!-- Optional File Upload -->
+        <div class="mb-4">
+            <label for="Media" class="form-label">Upload Media (Image or Video) - Optional</label>
+            <input type="file" class="form-control" id="Media" name="Media" accept="image/*,video/*" />
+        </div>
 
-    <br />
-
-    <!--  <input type="hidden" name="Date" value="@DateTime.Now" /> -->
-
-
-    <button type="submit" class="btn btn-success">Adauga articolul</button>
-
-</form>
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success btn-lg">Add Post</button>
+            <a href="/Posts/Index" class="btn btn-danger btn-lg">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -1,20 +1,54 @@
-﻿
-<h2>Edit post</h2>
+﻿@{
+    Layout = "_Layout"; // Ensure you have the appropriate layout set for Bootstrap CSS and JS files
+}
 
-<form method="post" action="/Posts/Edit/@ViewBag.Post.Id">
+<h2 class="text-center my-5">Edit Post</h2>
 
-    
+<div class="container">
+    <form method="post" action="/Posts/Edit/@ViewBag.Post.Id" enctype="multipart/form-data">
+        <!-- Form Group for Content -->
+        <div class="mb-4">
+            <label for="content" class="form-label">Edit Post Content</label>
+            <input type="text" id="content" name="Content" class="form-control" value="@ViewBag.Post.Content" required />
+        </div>
 
-    <label>Edit post content</label>
-    <br />
+        <!-- Display Current Media -->
+        @if (!string.IsNullOrEmpty(ViewBag.Post.Media))
+        {
+            <div class="mb-4">
+                <label class="form-label">Current Media</label>
+                <div class="mb-2">
+                    @if (ViewBag.Post.Media.EndsWith(".mp4") || ViewBag.Post.Media.EndsWith(".webm") || ViewBag.Post.Media.EndsWith(".ogg"))
+                    {
+                        <video controls class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                            <source src="@ViewBag.Post.Media" type="video/mp4">
+                            <source src="@ViewBag.Post.Media" type="video/webm">
+                            <source src="@ViewBag.Post.Media" type="video/ogg">
+                            Your browser does not support the video tag.
+                        </video>
+                    }
+                    else
+                    {
+                        <img src="@ViewBag.Post.Media" alt="Current Media" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />
+                    }
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="removeMedia" name="removeMedia" value="true" />
+                    <label class="form-check-label" for="removeMedia">Remove current media</label>
+                </div>
+            </div>
+        }
 
-    <input type="text" name="Content" value="@ViewBag.Post.Content" />
-    <br /><br />
+        <!-- Form Group for New Media Upload -->
+        <div class="mb-4">
+            <label for="media" class="form-label">Upload New Media (optional)</label>
+            <input type="file" id="media" name="Media" class="form-control" accept="image/*,video/*" />
+        </div>
 
-    
-
-    <button type="submit" class="btn btn-info">Edit</button>
-
-</form>
-
-
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+            <a href="/Posts/Index" class="btn btn-danger btn-lg">Cancel</a>
+        </div>
+    </form>
+</div>

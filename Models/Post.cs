@@ -13,6 +13,8 @@ namespace Connectify.Models
         // o postare are o lista de comentarii
         public virtual ICollection<Comment> Comments { get; set; }
 
+        public string? Media { get; set; }
+
         // de adaugat user
     }
 }

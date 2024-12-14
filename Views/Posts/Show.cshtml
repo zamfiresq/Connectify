@@ -1,115 +1,105 @@
-﻿<h2>Post</h2>
-<br />
+﻿<!-- Post Header and Buttons -->
+<header class="d-flex justify-content-between align-items-center my-4">
+    <!-- See All Posts Button (Left-Aligned) -->
+    <div>
+        <a href="/Posts/Index" class="btn btn-success btn-lg" style="margin-left: 20px;">See All Posts</a>
+    </div>
 
-<p>@ViewBag.Post.Content</p>
-<p>@ViewBag.Post.PostedAt</p>
+    <!-- Post Header Title -->
+    <h2 class="text-center display-3 mb-0" style="flex-grow: 1; text-align: center;">Post</h2>
 
-<br />
+    <!-- Delete Post Button (Right-Aligned) -->
+    <div>
+        <form method="post" action="/Posts/Delete/@ViewBag.Post.Id">
+            <button type="submit" class="btn btn-danger btn-lg" style="margin-right: 20px;">Delete Post</button>
+        </form>
+    </div>
+</header>
 
-<form method="post" action="/Posts/Delete/@ViewBag.Post.Id">
+<div class="container">
+    <!-- Post Content -->
+    <div class="post-content mb-5" style="background-color: #f1f3f5; padding: 20px; border-radius: 8px; color: #6c757d;">
+        <p class="lead">@ViewBag.Post.Content</p>
+        <small class="text-muted d-block mb-3">
+            @ViewBag.Post.PostedAt.ToString("dd MMMM yyyy HH:mm")
+        </small>
 
-    <button type="submit" class="btn btn-danger">Delete post</button>
+        <!-- Display Attached Media -->
+        @if (!string.IsNullOrEmpty(ViewBag.Post.Media))
+        {
+            <div class="post-media mt-3">
+                @if (ViewBag.Post.Media.EndsWith(".mp4") || ViewBag.Post.Media.EndsWith(".webm") || ViewBag.Post.Media.EndsWith(".ogg"))
+                {
+                    <video controls class="img-fluid rounded" style="max-width: 100%; height: auto;">
+                        <source src="@ViewBag.Post.Media" type="video/mp4">
+                        <source src="@ViewBag.Post.Media" type="video/webm">
+                        <source src="@ViewBag.Post.Media" type="video/ogg">
+                        Your browser does not support the video tag.
+                    </video>
+                }
+                else
+                {
+                    <img src="@ViewBag.Post.Media" alt="Post Media" class="img-fluid rounded" style="max-width: 100%; height: auto;" />
+                }
+            </div>
+        }
+    </div>
 
-</form>
+    <hr class="mt-4" />
 
-<br />
+    <!-- Comments Section -->
+    <div class="comments-section mb-5">
+        <h4 class="mb-4 mt-6">Comments (@ViewBag.Post.Comments.Count)</h4>
 
-<a href="/Posts/Index" class="btn btn-success">See all posts</a>
+        @foreach (var comm in ViewBag.Post.Comments)
+        {
+            <div class="comment mb-6">
+                <p class="fs-5 fw-semibold mb-1" style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; color: #495057;">
+                    @comm.Text
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Commented At Date -->
+                    <small class="text-muted">
+                        @comm.CommentedAt.ToString("dd MMMM yyyy HH:mm")
+                    </small>
 
-
-
-<br />
-<br />
-
-@* Afisare comentarii impreuna cu butoanele de editare si stergere *@ 
-
-
-
-@foreach (var comm in ViewBag.Post.Comments)
-
-{
-    <div class="container">
-        <div class="row">
-            <div class="col-md-2"></div>
-
-            <div class="col-md-8">
-
-                <div>
-
-                    <p>@comm.Text</p>
-                    <small>@comm.CommentedAt</small>
-
-                </div>
-                <br>
-
-                <div class="d-flex">
-
+                    <!-- Edit and Delete Buttons (Right-Aligned) -->
                     <div>
+                        <a class="btn btn-sm btn-warning" href="/Comments/Edit/@comm.Id">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
 
-                        <a class="btn btn-outline-primary" href="/Comments/Edit/@comm.Id"><i class="bi bi-pencil-square"></i>Edit</a>
-
-                    </div>
-
-                    <div>
-
-                        <form method="post" asp-controller="Comments" asp-action="Delete" asp-route-id="@comm.Id">
-
-                            <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i>Sterge</button>
-
+                        <form method="post" asp-controller="Comments" asp-action="Delete" asp-route-id="@comm.Id" class="d-inline">
+                            <button class="btn btn-sm btn-danger" type="submit">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
                         </form>
-
                     </div>
+                </div>
+            </div>
+        }
+    </div>
 
+    <hr />
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Add a Comment</h5>
+        </div>
+        <div class="card-body">
+            <!-- Add Comment Form -->
+            <form method="post" asp-controller="Comments" asp-action="New" class="d-flex flex-column">
+                <input type="hidden" name="PostId" value="@ViewBag.Post.Id" />
+
+                <!-- Comment Content Textarea -->
+                <div class="form-group mb-3">
+                    <label for="commentText">Comment Content</label>
+                    <textarea class="form-control" id="commentText" name="Text" rows="3" required></textarea>
                 </div>
 
-                <br />
-
-            </div>
-
-            <div class="col-md-2"></div>
-
+                <!-- Submit Button (inside the form) -->
+                <button type="submit" class="btn btn-success btn-sm mt-3">Add Comment</button>
+            </form>
         </div>
-
     </div>
-} 
-
-
-@* Afisarea formularului in care se poate adauga un comentariu *@
-
- <div class="container">
-
-    <div class="row">
-
-        <div class="col-md-2"></div>
-
-        <div class="col-md-8">
-
-            <div class="card">
-
-                <form method="post" asp-controller="Comments" asp-action="New">
-
-                    <div class="card-body">
-
-                        <input type="hidden" name="PostId" value="@ViewBag.Post.Id" />
-
-                        <label>Comm content</label>
-                        <br />
-
-                        <textarea class="form-control" name="Text"></textarea>
-                        <br />
-
-                        <button class="btn btn-success " type="submit">Add comment</button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-2"></div>
-
-    </div>
-
 </div>

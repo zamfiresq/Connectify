@@ -1,19 +1,17 @@
-﻿@{
-    ViewBag.Title = "Edit";
-}
+﻿<h2 class="text-center my-5">Edit Comment</h2>
 
-<h2>Edit comment</h2>
-<br />
+<div class="container">
+    <form method="post" action="/Comments/Edit/@ViewBag.Comment.Id">
+        <!-- Form Group for Content -->
+        <div class="mb-4">
+            <label for="content" class="form-label">Comment Content</label>
+            <textarea id="content" name="Text" class="form-control" rows="4" required>@ViewBag.Comment.Text</textarea>
+        </div>
 
-<form method="post" action="/Comments/Edit/@ViewBag.Comment.Id">
-
-    <label>Comment content</label>
-    <br />
-
-    <textarea name="Content">@ViewBag.Comment.Text</textarea>
-    <br />
-
-    <button class="btn  btn-primary" type="submit">Edit comment</button>
-
-</form>
-
+        <!-- Submit and Cancel Buttons -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+            <a href="/Posts/Show/@ViewBag.Comment.PostId" class="btn btn-danger btn-lg">Cancel</a>
+        </div>
+    </form>
+</div>

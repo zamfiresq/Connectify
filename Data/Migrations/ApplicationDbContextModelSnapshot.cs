@@ -114,6 +114,9 @@ namespace Connectify.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Media")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("PostedAt")
                         .HasColumnType("datetime2");
 

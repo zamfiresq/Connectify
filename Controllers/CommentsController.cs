@@ -64,14 +64,16 @@ namespace Connectify.Controllers
 
                 _db.SaveChanges();
 
-                return Redirect("/Comments/Show/" + comm.PostId);
+                return Redirect("/Posts/Show/" + comm.PostId);
             }
             catch (Exception e)
             {
-                return Redirect("/Comments/Show/" + comm.PostId);
+                return Redirect("/Posts/Show/" + comm.PostId);
             }
 
         }
+
+
 
     }
 }
