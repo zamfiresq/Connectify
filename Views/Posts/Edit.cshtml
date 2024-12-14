@@ -1,20 +1,21 @@
-﻿
-<h2>Edit post</h2>
+﻿@{
+    Layout = "_Layout"; // Ensure you have the appropriate layout set for Bootstrap CSS and JS files
+}
 
-<form method="post" action="/Posts/Edit/@ViewBag.Post.Id">
+<h2 class="text-center my-5">Edit Post</h2>
 
-    
+<div class="container">
+    <form method="post" action="/Posts/Edit/@ViewBag.Post.Id">
+        <!-- Form Group for Content -->
+        <div class="mb-4">
+            <label for="content" class="form-label">Edit Post Content</label>
+            <input type="text" id="content" name="Content" class="form-control" value="@ViewBag.Post.Content" required />
+        </div>
 
-    <label>Edit post content</label>
-    <br />
-
-    <input type="text" name="Content" value="@ViewBag.Post.Content" />
-    <br /><br />
-
-    
-
-    <button type="submit" class="btn btn-info">Edit</button>
-
-</form>
-
-
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+            <a href="/Posts/Index" class="btn btn-danger btn-lg">Cancel</a>
+        </div>
+    </form>
+</div>

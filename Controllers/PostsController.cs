@@ -14,14 +14,20 @@ namespace Connectify.Controllers
         }
 
 
-        public IActionResult Index()
+        public ActionResult Index()
         {
-            var posts = _db.Posts;
+            var posts = _db.Posts.Include("Comments").Select(p => new
+            {
+                p.Id,
+                p.Content,
+                p.PostedAt,
+                CommentCount = p.Comments.Count
+            }).ToList();
 
             ViewBag.Posts = posts;
-
             return View();
         }
+
 
 
         public ActionResult Show(int id)
@@ -30,7 +36,11 @@ namespace Connectify.Controllers
             Post post=_db.Posts.Include("Comments")
                 .Where(p => p.Id == id).First();
 
+            var commentCount = post.Comments.Count;
+
             ViewBag.Post = post;
+            
+            
             return View();
         }
 
