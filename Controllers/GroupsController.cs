@@ -77,7 +77,7 @@ namespace Connectify.Controllers
             }
 
             ViewBag.Group = group;
-            return View();
+            return View(group);
         }
 
         // formularul de editare
@@ -95,13 +95,14 @@ namespace Connectify.Controllers
             {
                 group.GroupName = requestGroup.GroupName;
                 group.Description = requestGroup.Description;
-
+                TempData["message"] = "Group updated successfully!";
                 dbc.SaveChanges();
 
                 return RedirectToAction("Index");
             }
-            catch (Exception)
+            catch (Exception) // cand nu se poate face update
             {
+                TempData["message"] = "Group not found!";
                 return RedirectToAction("Edit", new { id = group.Id });
             }
         }

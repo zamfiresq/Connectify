@@ -14,8 +14,9 @@
         <span asp-validation-for="TextMessage" class="text-danger"></span>
         <br />
         <br />
+
         <button class="btn btn-primary" type="submit">Save</button>
-        <button class="btn btn-seconadry" asp-route-id="@Model.GroupId" asp-action="Show" asp-controller="Groups">Cancel</button>
+        <a class="btn btn-secondary" asp-action="Show" asp-controller="Groups" asp-route-id="@Model.GroupId">Cancel</a>
 
     </form>
 </div>

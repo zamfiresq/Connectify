@@ -4,12 +4,12 @@
 <br />
 
 <div class="container mt-4">
-    <!-- Card pentru grup -->
+    <!-- card pentru grup -->
     <div class="card">
         <div class="card-header text-center">
             <h3>@Model.GroupName</h3>
         </div>
-        <div class="card-body">
+        <div class="card-body text-center">
             <p>@Model.Description</p>
             <div class="d-flex justify-content-between">
                 <a class="btn btn-primary" asp-action="Edit" asp-controller="Groups" asp-route-id="@Model.Id">Edit</a>
@@ -20,10 +20,10 @@
         </div>
     </div>
 
-    <!-- Separator -->
+    <!-- separator -->
     <hr class="my-4" />
 
-    <!-- Card pentru mesaje -->
+    <!-- card pentru mesaje -->
     <div class="card">
         <div class="card-header">
             <h3>All Messages</h3>
@@ -56,23 +56,22 @@
         </div>
     </div>
 
-    <!-- Separator pentru formularul de adaugare a unui mesaj -->
+    <!-- separator pentru formularul de adaugare a unui mesaj -->
     <hr class="my-4" />
 
-    <!-- Card pentru adaugarea unui mesaj -->
+    <!-- card pentru adaugarea unui mesaj -->
     <br />
     <div class="card">
         <div class="card-header">
-            <h5>Add a New Message</h5>
+            <h5>Your message</h5>
         </div>
         <div class="card-body">
             <form method="post" asp-controller="Messages" asp-action="New">
                 <div class="form-group">
                     <input type="hidden" name="GroupId" value="@Model.Id" />
-                    <label for="TextMessage">Message content</label>
-                    <textarea class="form-control" name="TextMessage" id="TextMessage"></textarea>
+                    <textarea class="form-control" name="TextMessage" id="TextMessage" placeholder="Type here..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-success mt-3">Send</button>
+                <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-chat-dots"></i> Send</button>
             </form>
         </div>
     </div>

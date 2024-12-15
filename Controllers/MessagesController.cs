@@ -39,7 +39,7 @@ namespace Connectify.Controllers
         public IActionResult Edit(int id)
         {
             var message = dbc.Messages.Find(id);
-
+            ViewBag.Message = message;
             return View(message);
         }
 
@@ -48,15 +48,17 @@ namespace Connectify.Controllers
         {
             var message = dbc.Messages.Find(id);
 
-            if(ModelState.IsValid)
+            try
             {
                 message.TextMessage = updatedMessage.TextMessage;
                 dbc.SaveChanges();
+                TempData["message"] = "Message updated successfully!";
                 return Redirect("/Groups/Show/" + message.GroupId);
             }
-            else
+            catch (Exception)
             {
-                return View(updatedMessage);
+                TempData["message"] = "Message not found!";
+                return Redirect("/Groups/Show/" + message.GroupId);
             }
         }
 
@@ -66,19 +68,21 @@ namespace Connectify.Controllers
             return View();
         }
 
+
         [HttpPost]
         public IActionResult New(Message message)
         {
-            if (ModelState.IsValid)
+            message.SentAt = DateTime.Now;
+
+            try
             {
                 dbc.Messages.Add(message);
                 dbc.SaveChanges();
-                TempData["message"] = "Message created successfully!";
                 return Redirect("/Groups/Show/" + message.GroupId);
             }
-            else
+            catch (Exception)
             {
-                return View(message);
+                return Redirect("/Groups/Show/" + message.GroupId);
             }
         }
 
