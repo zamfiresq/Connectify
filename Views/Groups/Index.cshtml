@@ -1,1 +1,30 @@
-﻿
+﻿@{
+    ViewBag.GroupName = "All groups";
+}
+
+<h2>@ViewBag.GroupName</h2>
+<br />
+
+<div class="container">
+    @foreach (var group in ViewBag.Groups)
+    {
+        <div class="row mb-3">
+            <div class="col">
+                <h4>@group.GroupName</h4>
+                <p>@group.Description</p>
+            </div>
+            <div class="col-auto">
+                <a href="@Url.Action("Show", "Groups", new { id = group.Id })" class="btn btn-primary">View Group</a>
+            </div>
+        </div>
+    }
+</div>
+
+
+<!--buton pentru a crea un nou grup-->
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <a href="@Url.Action("New", "Groups")" class="btn btn-primary">Create a new group</a>
+        </div>
+    </div>

@@ -6,7 +6,10 @@ namespace Connectify.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required(ErrorMessage = "Your group must have a name!")]
         public string GroupName { get; set; }
+        [Required(ErrorMessage = "Your group must have a description!")]
+        public string Description { get; set; }
 
         // de adaugat user
 

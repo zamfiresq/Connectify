@@ -1,0 +1,25 @@
+﻿@model Connectify.Models.Group
+
+@*afisarea unui grup*@
+
+<h2 class="text-center">Edit your group</h2>
+<br />
+
+<form asp-action="Edit" asp-controller="Groups" method="post">
+    <input type="hidden" asp-for="Id" />
+    <label asp-for="GroupName">Group name:</label>
+    <input asp-for="GroupName" class="form-control" />
+    <span asp-validation-for="GroupName" class="text-danger"></span>
+    <br />
+    <label asp-for="Description">Description:</label>
+    <textarea asp-for="Description" class="form-control"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+    <br />
+    <br />
+
+    <button class="btn btn-primary" type="submit">Save</button>
+
+    @*butonul de cancel de la editare ca sa ma trimita inapoi la pagina grupului*@
+    <a class="btn btn-secondary" asp-action="Show" asp-controller="Groups" asp-route-id="@Model.Id">Cancel</a>
+
+</form>

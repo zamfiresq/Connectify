@@ -1,0 +1,22 @@
+﻿@model Connectify.Models.Message
+
+<h2>Edit your message</h2>
+<br />
+
+<div>
+    <form asp-action="Edit" asp-controller="Messages" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="GroupId" />
+        <label asp-for="TextMessage">Message:</label>
+        <br />
+        <input asp-for="TextMessage" class="form-control" />
+        <br />
+        <span asp-validation-for="TextMessage" class="text-danger"></span>
+        <br />
+        <br />
+
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-secondary" asp-action="Show" asp-controller="Groups" asp-route-id="@Model.GroupId">Cancel</a>
+
+    </form>
+</div>
