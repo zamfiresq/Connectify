@@ -1,22 +1,21 @@
 ﻿@model Connectify.Models.Message
+
 <h2>Edit your message</h2>
-<br />
 <br />
 
 <div>
-    @using (Html.BeginForm(controllerName: "Messages", actionName: "Edit", method: FormMethod.Post, routeValues: new {IDataTokensMetadata = Model.Id}))
-    {
-        @Html.Label("TextMessage", "Message content")
+    <form asp-action="Edit" asp-controller="Messages" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="GroupId" />
+        <label asp-for="TextMessage">Message:</label>
         <br />
-
-@*         @Html.Editor("TextMessage", new {@class = "form-control"})
-        <br /> *@
-
-        @Html.ValidationMessage("TextMessage", null, new {@class = "text-danger"})
-
+        <input asp-for="TextMessage" class="form-control" />
+        <br />
+        <span asp-validation-for="TextMessage" class="text-danger"></span>
         <br />
         <br />
+        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn btn-seconadry" asp-route-id="@Model.GroupId" asp-action="Show" asp-controller="Groups">Cancel</button>
 
-        <button class="btn btn-success" type="submit"> Edit message</button>
-    }
+    </form>
 </div>

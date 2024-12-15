@@ -2,71 +2,21 @@
 
 @*Afisarea unui grup*@
 
-<div class="container">
-    <h2>Edit group</h2>
+<h2>Edit your group</h2>
+<br />
+
+<form asp-action="Edit" asp-controller="Groups" method="post">
+    <input type="hidden" asp-for="Id" />
+    <label asp-for="GroupName">Group name:</label>
+    <input asp-for="GroupName" class="form-control" />
+    <span asp-validation-for="GroupName" class="text-danger"></span>
+    <br />
+    <label asp-for="Description">Description:</label>
+    <input asp-for="Description" class="form-control" />
+    <span asp-validation-for="Description" class="text-danger"></span>
     <br />
     <br />
-    <div>
-        @using (Html.BeginForm(controllerName: "Groups", actionName: "Edit", method: FormMethod.Post, routeValues: new { id = Model.Id }))
-        {
-            @Html.Label("GroupName", "Group Name:")
-            <br />
-            @Html.Editor("GroupName", new { @class = "form-control" })
-            <br />
-            @Html.ValidationMessage("GroupName", null, new { @class = "text-danger" })
-            <br />
-            <br />
-            @Html.Label("Description", "Group Description:")
-            <br />
-            @Html.Editor("Description", new { @class = "form-control" })
-            <br />
-            @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
-            <br />
-            <br />
-            <button class="btn btn-success" type="submit"> Edit group</button>
-        }
-    </div>
 
-</div>
-
-@*Afisarea mesajelor dintr-un grup*@
-<div class="container">
-    <h2>Messages in this group</h2>
-    <br />
-    <br />
-    @foreach (var message in Model.Messages)
-    {
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">@message.TextMessage</h5>
-                <p class="card-text">@message.SentAt</p>
-                <a href="@Url.Action("Edit", "Messages", new { id = message.Id })" class="btn btn-primary">Edit</a>
-                <a href="@Url.Action("Delete", "Messages", new { id = message.Id })" class="btn btn-danger">Delete</a>
-            </div>
-        </div>
-    }
-
-</div>
-
-@*Adaugarea unui mesaj in grup*@
-<div class="container">
-    <h2>Add a message to this group</h2>
-    <br />
-    <br />
-    <div>
-        @using (Html.BeginForm(controllerName: "Messages", actionName: "Create", method: FormMethod.Post, routeValues: new { groupId = Model.Id }))
-        {
-            @Html.Label("TextMessage", "Message content")
-            <br />
-            @Html.Editor("TextMessage", new { @class = "form-control" })
-            <br />
-            @Html.ValidationMessage("TextMessage", null, new { @class = "text-danger" })
-            <br />
-            <br />
-            <button class="btn btn-success" type="submit"> Add message</button>
-        }
-    </div>
-
-</div>
-
-
+    <button class="btn btn-primary" type="submit">Save</button>
+    <a href="/Groups/Show" class="btn btn-secondary">Cancel</a>"
+</form>

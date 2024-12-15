@@ -36,80 +36,113 @@ namespace Connectify.Controllers
         // show - afisarea unui grup specific dupa id
         public IActionResult Show(int id)
         {
-            // orice user care face parte din niste grupuri poate sa le vada
-            // conditie de pus pt roluri
             var group = dbc.Groups.Include("Messages")
-                        .Where(g => g.Id == id)
-                        .First();
+                .Where(g => g.Id == id)
+                .FirstOrDefault();
+
             return View(group);
         }
 
+
         // show - pentru mesajele unui grup
         [HttpPost]
-        public IActionResult Show(int id, [FromForm] Message mesaj)
+        public IActionResult Show([FromForm] Message mesaj)
         {
             mesaj.SentAt = DateTime.Now;
 
-            try
+           if (ModelState.IsValid)
             {
                 dbc.Messages.Add(mesaj);
                 dbc.SaveChanges();
+                TempData["message"] = "Message sent successfully!";
                 return Redirect("/Groups/Show/" + mesaj.GroupId);
             }
-
-            catch (Exception ex)
+            else
             {
-                Group grp = dbc.Groups.Include("Comments")
-                            .Where(grp => grp.Id == mesaj.GroupId)
-                            .First();
+                var group = dbc.Groups.Include("Messages")
+                    .Where(g => g.Id == mesaj.GroupId)
+                    .FirstOrDefault();
 
-                return View(grp);
+                return View(group);
             }
         }
 
         // formular pentru crearea grupului
+        public IActionResult New()
+        {
+           Group newGroup = new Group();
+
+            return View(newGroup);
+        }
+
+        // se adauga un grup nou in baza de date
+        [HttpPost]
         public IActionResult New(Group grup)
         {
-            if (ModelState.IsValid)
+            try
             {
-                dbc.Groups.Add(grup);
-                dbc.SaveChanges();
-                TempData["message"] = "Group created successfully!";
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    dbc.Groups.Add(grup);
+                    dbc.SaveChanges();
+                    TempData["message"] = "Group created successfully!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return View(grup);
+                }
             }
-            return View(grup);
+            catch (Exception)
+            {
+                return View(grup);
+            }
         }
 
 
         // editarea unui grup
         public IActionResult Edit(int id)
         {
-            Group grup = dbc.Groups.Find(id);
+            var grup = dbc.Groups.Find(id);
+
             return View(grup);
         }
 
         [HttpPost]
         public IActionResult Edit(int id, Group requestGroup)
         {
-            Group grup = dbc.Groups.Find(id);
+            var grup = dbc.Groups.Find(id);
+            if (grup == null)
+            {
+                TempData["message"] = "Group not found!";
+                return RedirectToAction("Index");
+            }
+
             if (ModelState.IsValid)
             {
                 grup.GroupName = requestGroup.GroupName;
                 grup.Description = requestGroup.Description;
                 dbc.SaveChanges();
+                TempData["message"] = "Group edited successfully!";
                 return RedirectToAction("Index");
             }
-            else
-            {
-                return View(requestGroup);
-            }
+
+            return View(requestGroup); 
         }
+
 
         // stergerea unui grup
         [HttpPost]
         public IActionResult Delete(int id)
         {
-            Group grup = dbc.Groups.Find(id);
+            var grup = dbc.Groups.Find(id);
+
+            if (grup == null)
+            {
+                TempData["message"] = "Group not found!";
+                return RedirectToAction("Index");
+            }
+
             dbc.Groups.Remove(grup);
             dbc.SaveChanges();
             TempData["message"] = "Group deleted successfully!";

@@ -20,39 +20,46 @@ namespace Connectify.Controllers
         [HttpPost]
         public IActionResult Delete(int id)
         {
-            Message mesaj = dbc.Messages.Find(id);
+            var message = dbc.Messages.Find(id);
+            if (message == null)
+            {
+                TempData["message"] = "Message not found!";
+                return RedirectToAction("Index");
+            }
 
-            // mesajul se poate sterge de catre admin sau de catre userul care apartine acelui grup
-            dbc.Messages.Remove(mesaj);
+            dbc.Messages.Remove(message);
             dbc.SaveChanges();
-            TempData["message"] = "Your message was successfully deleted!";
-            return Redirect("/Groups/Show/" +  mesaj.GroupId);
+            TempData["message"] = "Message deleted successfully!";
+            return Redirect("/Groups/Show/" + message.GroupId);
         }
+
 
 
         // editarea intr-o pagina separata de view
         public IActionResult Edit(int id)
         {
-            Message mesaj = dbc.Messages.Find(id);
+            var message = dbc.Messages.Find(id);
 
-            // adminul / userul care a trimis mesajul il poate edita
-            return View(mesaj);
+            return View(message);
         }
 
         [HttpPost]
-        public IActionResult Edit(int id, Message cerereMesaj)
+        public IActionResult Edit(int id, Message updatedMessage)
         {
-            Message mesaj = dbc.Messages.Find(id);
+            var message = dbc.Messages.Find(id);
 
-            // verificare roluri
-            if (ModelState.IsValid)
+            if(ModelState.IsValid)
             {
-                mesaj.TextMessage = cerereMesaj.TextMessage;
+                message.TextMessage = updatedMessage.TextMessage;
                 dbc.SaveChanges();
-                return Redirect("/Groups/Show" + mesaj.GroupId);
+                return Redirect("/Groups/Show/" + message.GroupId);
             }
-
-            return View(cerereMesaj);
+            else
+            {
+                return View(updatedMessage);
+            }
         }
+
     }
 }
+

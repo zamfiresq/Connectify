@@ -1,5 +1,27 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model Connectify.Models.Group
+
+<h2>Create a new group</h2>
+<br />
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post" action="/Groups/New">
+            
+                <label>Group name</label>
+                <input type="text" name="GroupName" class="form-control" />
+                <span asp-validation-for="GroupName" class="text-danger"></span>
+                <br />
+                <label>Description</label>
+                <textarea name="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+                <br />
+                <br />
+                
+                <button type="submit" class="btn btn-success">Create group</button>
+                <a href="/Groups/Index" class="btn btn-secondary">Cancel</a>
+
+            </form>
+
+    </div>
+</div>
