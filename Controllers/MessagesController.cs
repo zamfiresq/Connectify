@@ -60,6 +60,29 @@ namespace Connectify.Controllers
             }
         }
 
+        // crearea unui mesaj nou
+        public IActionResult New()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult New(Message message)
+        {
+            if (ModelState.IsValid)
+            {
+                dbc.Messages.Add(message);
+                dbc.SaveChanges();
+                TempData["message"] = "Message created successfully!";
+                return Redirect("/Groups/Show/" + message.GroupId);
+            }
+            else
+            {
+                return View(message);
+            }
+        }
+
+
     }
 }
 
