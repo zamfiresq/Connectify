@@ -1,5 +1,6 @@
 ﻿using Connectify.Data;
 using Connectify.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,9 +9,18 @@ namespace Connectify.Controllers
     public class PostsController : Controller
     {
         private readonly ApplicationDbContext _db;
-        public PostsController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public PostsController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager
+        )
         {
             _db = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public ActionResult Index()

@@ -1,5 +1,6 @@
 ﻿using Connectify.Data;
 using Connectify.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Connectify.Controllers
@@ -10,9 +11,20 @@ namespace Connectify.Controllers
     {
 
         private readonly ApplicationDbContext _db;
-        public CommentsController(ApplicationDbContext context)
+
+        // PASUL 10: useri si roluri
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public CommentsController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager
+        )
         {
             _db = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
 

@@ -4,7 +4,8 @@ using Connectify.Models;
 
 namespace Connectify.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    // PASUL 3: useri si roluri
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

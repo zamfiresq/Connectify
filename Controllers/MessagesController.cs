@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Connectify.Data;
 using Connectify.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Connectify.Controllers
 {
@@ -9,10 +10,18 @@ namespace Connectify.Controllers
     {
 
         private readonly ApplicationDbContext dbc;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public MessagesController(ApplicationDbContext dbc)
+        public MessagesController(
+            ApplicationDbContext dbc,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager
+        )
         {
             this.dbc = dbc;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
 
