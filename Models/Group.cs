@@ -11,9 +11,14 @@ namespace Connectify.Models
         [Required(ErrorMessage = "Your group must have a description!")]
         public string Description { get; set; }
 
-        // de adaugat user
+        // PASUL 6: useri si roluri
+        public virtual ApplicationUser? User { get; set; }
+        public string? UserId { get; set; }
 
         // un grup are o lista de mesaje
         public virtual ICollection<Message> Messages { get; set; }
+
+        // un grup are o lista de useri
+        public virtual ICollection<UserGroup> UserGroups { get; set; }
     }
 }

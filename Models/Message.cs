@@ -11,10 +11,12 @@ namespace Connectify.Models
         public DateTime SentAt { get; set; }
 
         // FK
-        public int GroupId { get; set; }
-        public Group Group { get; set; }
+        public int? GroupId { get; set; }
+        public Group? Group { get; set; }
 
-        // de adaugat user id 
+        // PASUL 6: useri si roluri
+        public virtual ApplicationUser? User { get; set; }
+        public string? UserId { get; set; }
 
     }
 }

@@ -15,6 +15,8 @@ namespace Connectify.Models
 
         public string? Media { get; set; }
 
-        // de adaugat user
+        // PASUL 6: useri si roluri
+        public virtual ApplicationUser? User { get; set; }
+        public string? UserId { get; set; }
     }
 }

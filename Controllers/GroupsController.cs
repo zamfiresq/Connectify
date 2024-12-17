@@ -1,5 +1,6 @@
 ﻿using Connectify.Data;
 using Connectify.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +10,20 @@ namespace Connectify.Controllers
     {
         private readonly ApplicationDbContext dbc;
 
-        public GroupsController(ApplicationDbContext context)
+        // PASUL 10: useri si roluri
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+
+        public GroupsController(
+            ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager
+        )
         {
             dbc = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         //index - afisarea tuturor grupurilor
