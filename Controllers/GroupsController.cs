@@ -123,7 +123,9 @@ namespace Connectify.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            Group? group = dbc.Groups.Find(id);
+            Group? group = dbc.Groups.Include(g => g.Messages)
+                        .FirstOrDefault(g => g.Id == id);
+
 
             if (group != null)
             {
