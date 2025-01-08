@@ -104,9 +104,12 @@ namespace Connectify.Controllers
             {
                 post.UserId = currentUser.Id;
             }
-            else
+            if (currentUser == null)
             {
-                return Unauthorized(); // Ensure user is logged in
+                // Add an error message and redirect to login or another page
+                TempData["ErrorMessage"] = "Cannot add post. Please log in first.";
+                return RedirectToPage("/Account/Login", new { area = "Identity" });
+                // Redirect to the login page or desired action
             }
 
             try
