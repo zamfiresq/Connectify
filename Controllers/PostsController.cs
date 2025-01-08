@@ -25,29 +25,51 @@ namespace Connectify.Controllers
 
         public ActionResult Index()
         {
-            var posts = _db.Posts.Include("Comments").Select(p => new
-            {
-                p.Id,
-                p.Content,
-                p.PostedAt,
-                p.Media, // Include Media property
-                CommentCount = p.Comments.Count
-            }).ToList();
+            var posts = _db.Posts
+               .Include(p => p.Comments)
+               .ThenInclude(c => c.User)
+               .Include(p => p.User)
+               .Select(p => new
+               {
+                   p.Id,
+                   p.Content,
+                   p.PostedAt,
+                   p.Media, // Include Media property
+                   CommentCount = p.Comments.Count,
+                   User = p.User // Explicitly include the User
+               })
+               .ToList();
 
             ViewBag.Posts = posts;
+
             return View();
         }
+
+
+
 
         public ActionResult Show(int id)
         {
-            Post post = _db.Posts.Include("Comments")
-                .Where(p => p.Id == id).First();
 
-            var commentCount = post.Comments.Count;
+            var currentUser = _userManager.GetUserAsync(User).Result; // Get the current logged-in user
+
+            Post post = _db.Posts
+                .Include(p => p.Comments) // Include Comments
+                .ThenInclude(c => c.User) // Include User for each comment
+                .Where(p => p.Id == id)
+                .FirstOrDefault();
+
+            if (post == null)
+            {
+                return NotFound();
+            }
 
             ViewBag.Post = post;
+            ViewBag.CurrentUserId = currentUser?.Id; // Pass the current user's ID to the view
+
             return View();
         }
+
 
         public IActionResult Create()
         {
@@ -74,6 +96,18 @@ namespace Connectify.Controllers
             }
 
             post.PostedAt = DateTime.Now;
+
+
+            // Associate the post with the currently logged-in user
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser != null)
+            {
+                post.UserId = currentUser.Id;
+            }
+            else
+            {
+                return Unauthorized(); // Ensure user is logged in
+            }
 
             try
             {

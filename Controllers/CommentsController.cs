@@ -30,23 +30,39 @@ namespace Connectify.Controllers
 
 
         [HttpPost]
-        public IActionResult New(Comment comm)
+        [HttpPost]
+        public async Task<IActionResult> New(Comment comm)
         {
+            // Set the CommentedAt property to the current date and time
             comm.CommentedAt = DateTime.Now;
 
             try
             {
+                
+                // Get the current logged-in user
+                var currentUser = await _userManager.GetUserAsync(User);
+
+                // If a user is logged in, set the user-related properties
+                if (currentUser != null)
+                {
+                    comm.User = currentUser; // Set the full user object (optional, depending on your needs)
+                    comm.UserId = currentUser.Id; // Store the UserId for reference (important for FK relationships)
+                }
+
+                // Add the comment to the database
                 _db.Comments.Add(comm);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
+
+                // Redirect to the post's show page
                 return Redirect("/Posts/Show/" + comm.PostId);
             }
-
             catch (Exception)
             {
+                // If an error occurs, redirect back to the post's show page
                 return Redirect("/Posts/Show/" + comm.PostId);
             }
-
         }
+
 
         [HttpPost]
         public IActionResult Delete(int id)

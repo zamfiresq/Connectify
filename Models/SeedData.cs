@@ -178,7 +178,29 @@ namespace Connectify.Models
                 });
 
                 context.SaveChanges();
+
+
+
+                context.Posts.AddRange(
+                new Post
+                {
+                    Content = "This is a post by admin.",
+                    PostedAt = DateTime.Now,
+                    UserId = "8e445865-a24d-4543-a6c6-9443d048cdb0" // Admin's UserId
+                },
+                new Post
+                {
+                    Content = "This is a post by editor.",
+                    PostedAt = DateTime.Now,
+                    UserId = "8e445865-a24d-4543-a6c6-9443d048cdb1" // Editor's UserId
+                }
+            );
+                context.SaveChanges();
+
             }
         }
+
+
+
     }
 }

@@ -14,5 +14,8 @@ namespace Connectify.Models
         //public string ProfilePicture { get; set; }
         public bool IsPrivate { get; set; } // daca profilul este privat sau nu
 
+        public ICollection<Post> Posts { get; set; } // A user can have many posts
+
+
     }
 }

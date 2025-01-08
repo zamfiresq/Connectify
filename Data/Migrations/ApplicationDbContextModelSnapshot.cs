@@ -458,7 +458,7 @@ namespace Connectify.Data.Migrations
             modelBuilder.Entity("Connectify.Models.Post", b =>
                 {
                     b.HasOne("Connectify.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Posts")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
@@ -528,6 +528,11 @@ namespace Connectify.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Connectify.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("Connectify.Models.Group", b =>

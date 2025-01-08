@@ -21,6 +21,21 @@
             border-bottom: 1px solid #bbdefb;
         }
 
+        #searchResults {
+            position: absolute;
+            top: calc(100% + 10px); /* Positions it just below the search bar with a 10px gap */
+            left: 0;
+            right: 0;
+            z-index: 1000; /* Ensures it stays above other elements */
+            margin-top: 0; /* Removes any unnecessary margin */
+            max-height: 300px; /* Limits height for better UX */
+            overflow-y: auto; /* Enables scrolling for long results */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds a shadow for visibility */
+            background-color: white; /* Ensures it stands out */
+            border: 1px solid #ccc; /* Adds a subtle border */
+        }
+
+
         .post-card-body {
             padding: 1rem;
         }
@@ -82,12 +97,22 @@
                         <a class="nav-link" href="/Groups/Index">Groups</a>
                     </li>
                 </ul>
+
+                <!-- Search Bar -->
+                <form class="d-flex position-relative" style="flex-grow: 1; max-width: 300px;">
+                    <input id="searchInput" class="form-control me-2" type="search" placeholder="Search users..." aria-label="Search">
+                    
+                    <!-- Suggestions Container --> 
+                    <div id="searchResults" class="position-absolute bg-white border mt-1" style="z-index: 1000; width: 100%; display: none;"></div>
+                </form>
+
                 <div class="d-flex">
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </div>
     </header>
+
 
     <main class="container my-4">
         @RenderBody()
@@ -99,6 +124,43 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Search Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("searchInput");
+            const searchResults = document.getElementById("searchResults");
+
+            searchInput.addEventListener("input", function () {
+                const query = this.value.trim();
+                if (query.length < 2) {
+                    searchResults.style.display = "none";
+                    searchResults.innerHTML = "";
+                    return;
+                }
+
+                fetch(`/ApplicationUser/Search?query=${encodeURIComponent(query)}`, {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    searchResults.innerHTML = html;
+                    searchResults.style.display = "block";
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+            });
+
+            document.addEventListener("click", function (event) {
+                if (!searchResults.contains(event.target) && event.target !== searchInput) {
+                    searchResults.style.display = "none";
+                }
+            });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
