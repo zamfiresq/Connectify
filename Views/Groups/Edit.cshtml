@@ -1,25 +1,34 @@
 ﻿@model Connectify.Models.Group
 
-@*afisarea unui grup*@
+@{
+    ViewBag.Title = "Edit Group";
+}
 
-<h2 class="text-center">Edit your group</h2>
-<br />
+<h2 class="text-center mb-4">Edit Your Group</h2>
 
-<form asp-action="Edit" asp-controller="Groups" method="post">
-    <input type="hidden" asp-for="Id" />
-    <label asp-for="GroupName">Group name:</label>
-    <input asp-for="GroupName" class="form-control" />
-    <span asp-validation-for="GroupName" class="text-danger"></span>
-    <br />
-    <label asp-for="Description">Description:</label>
-    <textarea asp-for="Description" class="form-control"></textarea>
-    <span asp-validation-for="Description" class="text-danger"></span>
-    <br />
-    <br />
+<div class="container">
+    <form asp-action="Edit" asp-controller="Groups" method="post" class="card shadow-sm p-4">
+        <input type="hidden" asp-for="Id" />
 
-    <button class="btn btn-primary" type="submit">Save</button>
+        <!--nume grup-->
+        <div class="form-group mb-3">
+            <label asp-for="GroupName" class="form-label">Group Name:</label>
+            <input asp-for="GroupName" class="form-control" placeholder="Enter group name" />
+            <span asp-validation-for="GroupName" class="text-danger"></span>
+        </div>
 
-    @*butonul de cancel de la editare ca sa ma trimita inapoi la pagina grupului*@
-    <a class="btn btn-secondary" asp-action="Show" asp-controller="Groups" asp-route-id="@Model.Id">Cancel</a>
+        <!--descriere-->
+        <div class="form-group mb-3">
+            <label asp-for="Description" class="form-label">Description:</label>
+            <textarea asp-for="Description" class="form-control" placeholder="Add a description for the group"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
 
-</form>
+        <!--butoane-->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+            <a asp-action="Show" asp-controller="Groups" asp-route-id="@Model.Id" class="btn btn-secondary px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+
