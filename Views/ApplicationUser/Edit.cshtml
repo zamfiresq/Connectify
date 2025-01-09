@@ -1,0 +1,71 @@
+﻿@model Connectify.Models.ApplicationUserEdit
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit @Model.FirstName @Model.LastName's Profile</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-4">
+        <div class="form-container">
+            <h2 class="text-center">Edit Profile</h2>
+
+            <form asp-action="Edit" asp-controller="ApplicationUser" method="post">
+                <div class="mb-3">
+                    <label for="FirstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="FirstName" name="FirstName" value="@Model.FirstName" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="LastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="LastName" name="LastName" value="@Model.LastName" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="Bio" class="form-label">Bio</label>
+                    <textarea class="form-control" id="Bio" name="Bio" rows="4">@Model.Bio</textarea>
+                </div>
+
+                <div class="mb-3">
+                <label for="IsPrivate" class="form-label">Profile Privacy</label>
+                <select class="form-select" id="IsPrivate" name="IsPrivate">
+                        <option value="false" selected="@(!Model.IsPrivate ? "selected" : "")">Public</option>
+                        <option value="true" selected="@(Model.IsPrivate ? "selected" : "")">Private</option>
+
+                </select>
+            </div>
+
+
+
+
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="@Url.Action("Show", "ApplicationUser", new { id = Model.Id })" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

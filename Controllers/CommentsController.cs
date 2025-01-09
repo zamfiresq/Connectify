@@ -1,5 +1,6 @@
 ﻿using Connectify.Data;
 using Connectify.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +30,7 @@ namespace Connectify.Controllers
 
 
 
-        [HttpPost]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> New(Comment comm)
         {
@@ -38,16 +39,18 @@ namespace Connectify.Controllers
 
             try
             {
-                
                 // Get the current logged-in user
                 var currentUser = await _userManager.GetUserAsync(User);
 
-                // If a user is logged in, set the user-related properties
-                if (currentUser != null)
+                // Ensure the user is authenticated
+                if (currentUser == null)
                 {
-                    comm.User = currentUser; // Set the full user object (optional, depending on your needs)
-                    comm.UserId = currentUser.Id; // Store the UserId for reference (important for FK relationships)
+                    return Unauthorized(); // Return a 401 Unauthorized response
                 }
+
+                // Set user-related properties
+                comm.User = currentUser;
+                comm.UserId = currentUser.Id;
 
                 // Add the comment to the database
                 _db.Comments.Add(comm);
@@ -62,6 +65,7 @@ namespace Connectify.Controllers
                 return Redirect("/Posts/Show/" + comm.PostId);
             }
         }
+
 
 
         [HttpPost]
