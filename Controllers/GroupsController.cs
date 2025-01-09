@@ -59,10 +59,13 @@ namespace Connectify.Controllers
 
 
         // functie de verificare daca un user face parte dintr-un grup
-        public bool IsUserInGroup(int groupId, string userId)
+        private bool IsUserInGroup(int groupId, string userId)
         {
-            return dbc.UserGroups.Any(ug => ug.GroupId == groupId && ug.UserId == userId);
+            var inGroup = dbc.UserGroups.Any(ug => ug.GroupId == groupId && ug.UserId == userId);
+            Console.WriteLine($"IsUserInGroup result: {inGroup} for groupId={groupId}, userId={userId}");
+            return inGroup;
         }
+
 
 
         // show - afisarea unui grup dupa id cu mesajele asociate
@@ -71,7 +74,8 @@ namespace Connectify.Controllers
         {
             var currentUserId = _userManager.GetUserId(User);
 
-            if (User.IsInRole("Admin") || IsUserInGroup(id, currentUserId))
+            // Adminul sau moderatorul grupului au acces direct
+            if (User.IsInRole("Admin") || dbc.Groups.Any(g => g.Id == id && g.UserId == currentUserId))
             {
                 var group = dbc.Groups
                     .Include(g => g.Messages)
@@ -84,23 +88,64 @@ namespace Connectify.Controllers
                     ViewBag.Group = group;
                     ViewBag.CurrentUserId = currentUserId;
 
-                    ViewBag.UserGroups = dbc.UserGroups
-                        .Where(ug => ug.UserId == currentUserId)
-                        .Select(ug => ug.GroupId.Value) 
-                        .ToList();
+                    // Adminul este tratat ca membru direct
+                    if (User.IsInRole("Admin") && !group.UserGroups.Any(ug => ug.UserId == currentUserId))
+                    {
+                        var adminMembership = new UserGroup
+                        {
+                            UserId = currentUserId,
+                            GroupId = group.Id,
+                            IsAccepted = true
+                        };
+
+                        dbc.UserGroups.Add(adminMembership);
+                        dbc.SaveChanges();
+                    }
 
                     return View(group);
                 }
                 else
                 {
-                    return StatusCode(404); // not found
+                    return StatusCode(404); // Grupul nu există
                 }
+            }
+
+            // Pentru utilizatori obișnuiți, verificăm dacă sunt acceptați
+            var userGroup = dbc.UserGroups.FirstOrDefault(ug => ug.GroupId == id && ug.UserId == currentUserId);
+
+            if (userGroup != null && userGroup.IsAccepted)
+            {
+                var group = dbc.Groups
+                    .Include(g => g.Messages)
+                    .Include(g => g.UserGroups)
+                    .ThenInclude(ug => ug.User)
+                    .FirstOrDefault(g => g.Id == id);
+
+                if (group != null)
+                {
+                    ViewBag.Group = group;
+                    ViewBag.CurrentUserId = currentUserId;
+                    return View(group);
+                }
+                else
+                {
+                    return StatusCode(404); // Grupul nu există
+                }
+            }
+            else if (userGroup != null && !userGroup.IsAccepted)
+            {
+                TempData["message"] = "Your request to join the group is pending approval.";
+                TempData["messageType"] = "alert-warning";
+                return RedirectToAction("Index");
             }
             else
             {
-                return StatusCode(403); // denied
+                return StatusCode(403); // Acces interzis
             }
         }
+
+
+
 
 
 
@@ -158,9 +203,8 @@ namespace Connectify.Controllers
         [Authorize(Roles = "User,Admin")]
         public IActionResult New(Group group)
         {
-            // userul care creeaza grupul va fi salvat in baza de date
             var currentUserId = _userManager.GetUserId(User);
-            group.UserId = currentUserId;
+            group.UserId = currentUserId; // Creatorul devine moderator
 
             try
             {
@@ -170,23 +214,30 @@ namespace Connectify.Controllers
                 dbc.Groups.Add(group);
                 dbc.SaveChanges();
 
-                // crearea unei inregistrari in UserGroup pentru utilizatorul curent
+                // Adăugarea utilizatorului curent în grup ca membru acceptat
                 var userGroup = new UserGroup
                 {
                     UserId = currentUserId,
-                    GroupId = group.Id
+                    GroupId = group.Id,
+                    IsAccepted = true // Automat acceptat
                 };
 
                 dbc.UserGroups.Add(userGroup);
                 dbc.SaveChanges();
 
+                TempData["message"] = "Group created successfully!";
+                TempData["messageType"] = "alert-success";
+
                 return RedirectToAction("Index");
             }
             catch (Exception)
             {
-                return View();
+                TempData["message"] = "There was an error creating the group.";
+                TempData["messageType"] = "alert-danger";
+                return View(group);
             }
         }
+
 
 
         // edit
@@ -272,6 +323,8 @@ namespace Connectify.Controllers
 
 
 
+
+
         // FUNCTIONALITATI SPECIFICE 
         // join group
         [Authorize(Roles = "User,Admin")]
@@ -284,18 +337,19 @@ namespace Connectify.Controllers
                 var userGroup = new UserGroup
                 {
                     UserId = currentUserId,
-                    GroupId = id
+                    GroupId = id,
+                    IsAccepted = false // cererea de a intra in grup nu este acceptata automat
                 };
                 dbc.UserGroups.Add(userGroup);
                 dbc.SaveChanges();
-                TempData["message"] = "You have joined the group!";
-                TempData["messageType"] = "alert-success";
+                TempData["message"] = "Your request has been sent!";
+                TempData["messageType"] = "alert-info";
             }
 
             else
             {
-                TempData["message"] = "You are already in this group!";
-                TempData["messageType"] = "alert-danger";
+                TempData["message"] = "You are already in this group or your request is pending.";
+                TempData["messageType"] = "alert-warning";
             }
 
             return RedirectToAction("Index");
@@ -307,26 +361,38 @@ namespace Connectify.Controllers
         public IActionResult LeaveGroup(int id)
         {
             var currentUserId = _userManager.GetUserId(User);
+            var group = dbc.Groups.Include(g => g.UserGroups).FirstOrDefault(g => g.Id == id);
 
-            var userGroup = dbc.UserGroups
-                .FirstOrDefault(ug => ug.GroupId == id && ug.UserId == currentUserId);
-
-            if (userGroup != null)
+            if (group != null)
             {
-                dbc.UserGroups.Remove(userGroup);
-                dbc.SaveChanges();
+                var userGroup = group.UserGroups.FirstOrDefault(ug => ug.UserId == currentUserId);
 
-                TempData["message"] = "You have successfully left the group.";
-                TempData["messageType"] = "alert-warning";
+                // Dacă utilizatorul este moderator și singurul membru acceptat
+                if (group.UserId == currentUserId && group.UserGroups.Count(ug => ug.IsAccepted) == 1)
+                {
+                    TempData["message"] = "You cannot leave the group as you are the only member! You can only delete it.";
+                    TempData["messageType"] = "alert-warning";
+                    return RedirectToAction("Show", new { id = group.Id });
+                }
+
+                // Permite părăsirea grupului pentru alți membri
+                if (userGroup != null)
+                {
+                    dbc.UserGroups.Remove(userGroup);
+                    dbc.SaveChanges();
+                    TempData["message"] = "You have left the group!";
+                    TempData["messageType"] = "alert-success";
+                }
             }
             else
             {
-                TempData["message"] = "You are not part of this group.";
+                TempData["message"] = "Group not found!";
                 TempData["messageType"] = "alert-danger";
             }
 
             return RedirectToAction("Index");
         }
+
 
 
         // remove user from group
@@ -367,6 +433,54 @@ namespace Connectify.Controllers
 
             return StatusCode(403); // acces interzis
         }
+
+
+
+        // metoda pentru acceptarea cererii de intrare in grup
+        [Authorize(Roles = "User,Admin")]
+        public IActionResult ApproveUser(int groupId, string userId)
+        {
+            var userGroup = dbc.UserGroups.FirstOrDefault(ug => ug.GroupId == groupId && ug.UserId == userId);
+
+            if (userGroup != null)
+            {
+                userGroup.IsAccepted = true;
+                dbc.SaveChanges();
+                TempData["message"] = "User has been approved!";
+                TempData["messageType"] = "alert-success";
+            }
+            else
+            {
+                TempData["message"] = "User not found!";
+                TempData["messageType"] = "alert-danger";
+            }
+
+            return RedirectToAction("Show", new { id = groupId });
+        }
+
+        // metoda pentru respingerea cererii de intrare in grup
+        [HttpPost]
+        [Authorize(Roles = "Admin,User")]
+        public IActionResult DeclineUser(int groupId, string userId)
+        {
+            var userGroup = dbc.UserGroups.FirstOrDefault(ug => ug.GroupId == groupId && ug.UserId == userId);
+
+            if (userGroup != null && !userGroup.IsAccepted)
+            {
+                dbc.UserGroups.Remove(userGroup);
+                dbc.SaveChanges();
+                TempData["message"] = "Request has been declined.";
+                TempData["messageType"] = "alert-danger";
+            }
+            else
+            {
+                TempData["message"] = "Request not found or already approved.";
+                TempData["messageType"] = "alert-warning";
+            }
+
+            return RedirectToAction("Show", new { id = groupId });
+        }
+
 
     }
 }

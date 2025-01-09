@@ -29,19 +29,30 @@
     }
 </div>
 
+<!--mesajul pentru moderator-->
+@if (Model.UserId == ViewBag.CurrentUserId && Model.UserGroups.Count(ug => ug.IsAccepted) == 1)
+{
+    <p class="text-danger">You are the only member in this group. You can only delete it.</p>
+    <form asp-action="Delete" asp-controller="Groups" method="post" class="mt-3">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-danger">Delete Group</button>
+    </form>
+}
+
+
 <hr />
 
 <!--sectiune pt mesaje-->
 <h3>Group Messages</h3>
 <div class="card mb-4">
     <div class="card-body">
-        @if (Model.Messages != null && Model.Messages.Any())
+        @if (Model != null && Model.Messages != null && Model.Messages.Any())
         {
             @foreach (var message in Model.Messages)
             {
                 <div class="card mb-3">
                     <div class="card-body">
-                        <p><strong>@message.User.UserName:</strong> @message.TextMessage</p>
+                        <p><strong>@message.User?.UserName:</strong> @message.TextMessage</p>
                         <p class="text-muted"><small>Sent at: @message.SentAt.ToString("yyyy-MM-dd HH:mm")</small></p>
 
                         @if (User.IsInRole("Admin") || message.UserId == ViewBag.CurrentUserId)
@@ -78,6 +89,14 @@
 <hr />
 
 <!--parasire grup-->
+@* @if (ViewBag.UserGroups != null && ((List<int>)ViewBag.UserGroups).Contains(Model.Id)) *@
+@* { *@
+@*     <form asp-action="LeaveGroup" asp-controller="Groups" method="post" class="mt-3"> *@
+@*         <input type="hidden" name="id" value="@Model.Id" /> *@
+@*         <button type="submit" class="btn btn-warning">Leave Group</button> *@
+@*     </form> *@
+@* } *@
+
 @if (ViewBag.UserGroups != null && ((List<int>)ViewBag.UserGroups).Contains(Model.Id))
 {
     <form asp-action="LeaveGroup" asp-controller="Groups" method="post" class="mt-3">
@@ -91,7 +110,7 @@
 <!--lista membrilor din grup-->
 <h3>Group Members</h3>
 <ul class="list-group">
-    @foreach (var member in Model.UserGroups)
+    @foreach (var member in Model.UserGroups.Where(ug => ug.IsAccepted))
     {
         <li class="list-group-item d-flex justify-content-between align-items-center">
             @member.User.UserName
@@ -106,3 +125,35 @@
         </li>
     }
 </ul>
+
+
+
+<!--cereri in asteptare-->
+<h4>Pending Requests</h4>
+@if (Model.UserId == ViewBag.CurrentUserId || User.IsInRole("Admin"))
+{
+    <ul class="list-group">
+        @foreach (var request in Model.UserGroups.Where(ug => !ug.IsAccepted))
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @request.User.UserName
+                <div class="d-flex">
+                    <!-- Approve button -->
+                    <form asp-action="ApproveUser" asp-controller="Groups" method="post">
+                        <input type="hidden" name="groupId" value="@Model.Id" />
+                        <input type="hidden" name="userId" value="@request.UserId" />
+                        <button type="submit" class="btn btn-sm btn-success me-2">Approve</button>
+                    </form>
+
+                    <!-- Decline button -->
+                    <form asp-action="DeclineUser" asp-controller="Groups" method="post">
+                        <input type="hidden" name="groupId" value="@Model.Id" />
+                        <input type="hidden" name="userId" value="@request.UserId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Decline</button>
+                    </form>
+                </div>
+            </li>
+        }
+    </ul>
+}
+

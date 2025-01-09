@@ -14,5 +14,8 @@ namespace Connectify.Models
         public virtual Group? Group { get; set; }
         public int? GroupId { get; set; }
 
+        // bool pentru acceparea cererii de a intra in grup
+        public bool IsAccepted { get; set; }
+
     }
 }
