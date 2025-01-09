@@ -1,5 +1,6 @@
 ﻿using Connectify.Data;
 using Connectify.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,9 @@ namespace Connectify.Controllers
 
         public ActionResult Index()
         {
+            var currentUser = _userManager.GetUserAsync(User).Result; // Get the current logged-in user
+            ViewBag.CurrentUserId = currentUser?.Id;
+
             var posts = _db.Posts
                .Include(p => p.Comments)
                .ThenInclude(c => c.User)
@@ -36,7 +40,8 @@ namespace Connectify.Controllers
                    p.PostedAt,
                    p.Media, // Include Media property
                    CommentCount = p.Comments.Count,
-                   User = p.User // Explicitly include the User
+                   User = p.User, // Explicitly include the User
+                   
                })
                .ToList();
 
@@ -76,6 +81,7 @@ namespace Connectify.Controllers
             return View();
         }
 
+        [Authorize(Roles ="User,Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateAsync(Post post, IFormFile Media)
         {
@@ -133,6 +139,7 @@ namespace Connectify.Controllers
             return View();
         }
 
+        [Authorize(Roles = "User,Admin")]
         [HttpPost]
         public async Task<IActionResult> EditAsync(int id, Post requestPost, IFormFile? Media, bool removeMedia)
         {
@@ -141,6 +148,15 @@ namespace Connectify.Controllers
             if (post == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound);
+            }
+
+            // Check if the current user is the post owner or an admin
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            // Assuming Post has a property 'UserId' that links it to the user who created it
+            if (post.UserId != currentUserId && !User.IsInRole("Admin"))
+            {
+                return Forbid(); // Return 403 Forbidden if the user is neither the owner nor an admin
             }
 
             try
@@ -187,13 +203,27 @@ namespace Connectify.Controllers
             }
         }
 
+
+
+        [Authorize(Roles = "User,Admin")]
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            Post? post = _db.Posts.Find(id);
+            var post = _db.Posts
+            .Include(p => p.Comments) // Include related comments
+            .FirstOrDefault(p => p.Id == id);
+
+            var currentUser = _userManager.GetUserAsync(User).Result; // Get the current logged-in user
+            ViewBag.CurrentUserId = currentUser?.Id;
+            ViewBag.post = post;
 
             if (post != null)
             {
+                if (post.Comments != null && post.Comments.Any())
+                {
+                    _db.Comments.RemoveRange(post.Comments);
+                } 
+
                 if (!string.IsNullOrEmpty(post.Media))
                 {
                     var mediaPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", post.Media.TrimStart('/'));

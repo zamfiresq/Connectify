@@ -9,8 +9,7 @@
     <h2 class="text-center display-3 mb-0" style="flex-grow: 1; text-align: center;">Post</h2>
 
     <!-- Delete Post Button (Right-Aligned) -->
-    
-    @if (ViewBag.Post.UserId == ViewBag.CurrentUserId)
+    @if (User.IsInRole("Admin") || (User.IsInRole("User") && ViewBag.post.User?.Id == ViewBag.CurrentUserId))
     {
         <div>
             <form method="post" action="/Posts/Delete/@ViewBag.Post.Id">
@@ -70,17 +69,20 @@
                     <small class="text-muted">by @(comm.User != null ? $"{comm.User.FirstName} {comm.User.LastName}" : "Anonymous")</small>
 
                     <!-- Edit and Delete Buttons (Right-Aligned) -->
-                    <div>
-                        <a class="btn btn-sm btn-warning" href="/Comments/Edit/@comm.Id">
-                            <i class="bi bi-pencil-square"></i> Edit
-                        </a>
+                    @if (User.IsInRole("Admin") || (User.IsInRole("User") && comm.User?.Id == ViewBag.CurrentUserId))
+                    {
+                        <div>
+                            <a class="btn btn-sm btn-warning" href="/Comments/Edit/@comm.Id">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
 
-                        <form method="post" asp-controller="Comments" asp-action="Delete" asp-route-id="@comm.Id" class="d-inline">
-                            <button class="btn btn-sm btn-danger" type="submit">
-                                <i class="bi bi-trash"></i> Delete
-                            </button>
-                        </form>
-                    </div>
+                            <form method="post" asp-controller="Comments" asp-action="Delete" asp-route-id="@comm.Id" class="d-inline">
+                                <button class="btn btn-sm btn-danger" type="submit">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         }
