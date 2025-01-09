@@ -17,7 +17,7 @@
     {
         @foreach (var group in (List<Connectify.Models.Group>)ViewBag.Groups)
         {
-            // Verificăm dacă utilizatorul este deja parte din grup
+            // verificam daca utilizatorul este deja parte din grup
             var isUserInGroup = ((List<int>)ViewBag.UserGroups).Contains(group.Id);
 
             <div class="card mb-3 shadow-sm">
@@ -35,12 +35,12 @@
 
                     @if (isUserInGroup)
                     {
-                        <!-- Buton pentru a vedea conținutul grupului dacă utilizatorul este membru -->
+                        <!-- buton pt a vedea continutul grupului daca userul e membru -->
                         <a href="@Url.Action("Show", "Groups", new { id = group.Id })" class="btn btn-primary">See Group Content</a>
                     }
                     else
                     {
-                        <!-- Formular pentru alăturarea la grup dacă utilizatorul nu este membru -->
+                        <!-- formular pentru alaturarea la grupa daca userul nu este membru -->
                         <form asp-action="JoinGroup" asp-controller="Groups" method="post">
                             <input type="hidden" name="id" value="@group.Id" />
                             <button type="submit" class="btn btn-success">Join Group</button>

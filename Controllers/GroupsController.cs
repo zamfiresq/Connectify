@@ -84,7 +84,6 @@ namespace Connectify.Controllers
                     ViewBag.Group = group;
                     ViewBag.CurrentUserId = currentUserId;
 
-                    // grupurile din care face parte utilizatorul curent
                     ViewBag.UserGroups = dbc.UserGroups
                         .Where(ug => ug.UserId == currentUserId)
                         .Select(ug => ug.GroupId.Value) 
@@ -104,6 +103,7 @@ namespace Connectify.Controllers
         }
 
 
+
         // show - afisarea unui grup dupa id cu mesajele asociate
         [HttpPost]
         [Authorize(Roles = "User,Admin")]
@@ -117,6 +117,7 @@ namespace Connectify.Controllers
                 message.GroupId = id;
                 message.UserId = currentUserId;
 
+                message.Id = 0; // pentru a evita eroarea de duplicate key
                 // daca mesajul este valid
                 if (ModelState.IsValid)
                 {
