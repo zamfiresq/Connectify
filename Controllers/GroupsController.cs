@@ -69,16 +69,27 @@ namespace Connectify.Controllers
         [Authorize(Roles = "User,Admin")]
         public ActionResult Show(int id)
         {
-            var currentUserId = _userManager.GetUserId(User); // id-ul utilizatorului curent pentru a-l putea folosi in view
+            var currentUserId = _userManager.GetUserId(User);
 
-            // daca userul e admin sau face parte din grupul respectiv
             if (User.IsInRole("Admin") || IsUserInGroup(id, currentUserId))
             {
-                Group group = dbc.Groups.Include(g => g.Messages).FirstOrDefault(g => g.Id == id);
+                var group = dbc.Groups
+                    .Include(g => g.Messages)
+                    .Include(g => g.UserGroups)
+                    .ThenInclude(ug => ug.User)
+                    .FirstOrDefault(g => g.Id == id);
+
                 if (group != null)
                 {
                     ViewBag.Group = group;
                     ViewBag.CurrentUserId = currentUserId;
+
+                    // grupurile din care face parte utilizatorul curent
+                    ViewBag.UserGroups = dbc.UserGroups
+                        .Where(ug => ug.UserId == currentUserId)
+                        .Select(ug => ug.GroupId.Value) 
+                        .ToList();
+
                     return View(group);
                 }
                 else
@@ -88,9 +99,10 @@ namespace Connectify.Controllers
             }
             else
             {
-                return StatusCode(403); // acces interzis
+                return StatusCode(403); // denied
             }
         }
+
 
         // show - afisarea unui grup dupa id cu mesajele asociate
         [HttpPost]
@@ -128,8 +140,6 @@ namespace Connectify.Controllers
                 return StatusCode(403); // acces interzis
             }
         }
-
-
 
 
 
@@ -289,5 +299,73 @@ namespace Connectify.Controllers
 
             return RedirectToAction("Index");
         }
+
+
+        // leave group
+        [Authorize(Roles = "User,Admin")]
+        public IActionResult LeaveGroup(int id)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+
+            var userGroup = dbc.UserGroups
+                .FirstOrDefault(ug => ug.GroupId == id && ug.UserId == currentUserId);
+
+            if (userGroup != null)
+            {
+                dbc.UserGroups.Remove(userGroup);
+                dbc.SaveChanges();
+
+                TempData["message"] = "You have successfully left the group.";
+                TempData["messageType"] = "alert-warning";
+            }
+            else
+            {
+                TempData["message"] = "You are not part of this group.";
+                TempData["messageType"] = "alert-danger";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+        // remove user from group
+        [Authorize(Roles = "User,Admin")]
+        public IActionResult RemoveMember(int groupId, string userId)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var group = dbc.Groups.Include(g => g.UserGroups).FirstOrDefault(g => g.Id == groupId);
+
+            if (group == null)
+            {
+                return StatusCode(404); // grupul nu a fost gasit
+            }
+
+            if (User.IsInRole("Admin") || group.UserId == currentUserId)
+            {
+                var userGroup = dbc.UserGroups
+                    .FirstOrDefault(ug => ug.GroupId == groupId && ug.UserId == userId);
+
+                if (userGroup != null)
+                {
+                    dbc.UserGroups.Remove(userGroup);
+                    dbc.SaveChanges();
+
+                    TempData["message"] = "Member has been removed successfully!";
+                    TempData["messageType"] = "alert-success";
+                }
+                else
+                {
+                    TempData["message"] = "User is not part of this group.";
+                    TempData["messageType"] = "alert-danger";
+                }
+
+                return RedirectToAction("Show", new { id = groupId });
+            }
+
+            // validare pt cazul in care userul care incearca sa paraseasca grupul este singurul moderator
+
+            return StatusCode(403); // acces interzis
+        }
+
     }
 }

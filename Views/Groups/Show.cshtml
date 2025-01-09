@@ -2,90 +2,108 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
 
-<h2>@Model.GroupName</h2>
-<br />
+@{
+    ViewBag.Title = Model.GroupName;
+}
 
-<!-- card pentru informatiile grupului -->
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header text-center">
-            <h3>@Model.GroupName</h3>
-        </div>
-        <div class="card-body text-center">
-            <p>@Model.Description</p>
+<h2 class="text-center">@Model.GroupName</h2>
+<p class="text-muted text-center">@Model.Description</p>
 
-            @{
-                // verificam daca userul este deja parte din grup
-                var currentUser = User.Identity.IsAuthenticated ? await UserManager.GetUserAsync(User) : null;
-            }
+<hr />
 
-            
-            @if (User.IsInRole("Admin") || (currentUser != null && currentUser.Id == Model.UserId))
-            {
-                <div class="d-flex justify-content-center mt-3 gap-3">
-                    <a class="btn btn-primary" asp-action="Edit" asp-controller="Groups" asp-route-id="@Model.Id">Edit Group</a>
-                    <form asp-action="Delete" asp-controller="Groups" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this group?');">
-                        <button type="submit" class="btn btn-danger">Delete Group</button>
-                    </form>
-                </div>
-            }
-        </div>
+@if (TempData.ContainsKey("message"))
+{
+    <div class="alert @(TempData["messageType"] ?? "alert-info")">
+        @TempData["message"]
     </div>
+}
 
-    <!-- separator -->
-    <hr class="my-4" />
+<!--actiuni grup-->
+<div class="d-flex justify-content-between my-3">
+    @if (User.IsInRole("Admin") || Model.UserId == ViewBag.CurrentUserId)
+    {
+        <a asp-action="Edit" asp-controller="Groups" asp-route-id="@Model.Id" class="btn btn-primary">Edit Group</a>
+        <form asp-action="Delete" asp-controller="Groups" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this group?');">
+            <button type="submit" class="btn btn-danger">Delete Group</button>
+        </form>
+    }
+</div>
 
-    <!-- card pentru mesaje -->
-    <h3 class="text-center">Group Messages</h3>
-    <div class="card">
-        <div class="card-body">
-            @if (Model.Messages != null && Model.Messages.Any())
+<hr />
+
+<!--sectiune pt mesaje-->
+<h3>Group Messages</h3>
+<div class="card mb-4">
+    <div class="card-body">
+        @if (Model.Messages != null && Model.Messages.Any())
+        {
+            @foreach (var message in Model.Messages)
             {
-                @foreach (var mess in Model.Messages)
-                {
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <p><strong>@mess.User?.UserName:</strong> @mess.TextMessage</p>
-                            <p><small class="text-muted">Sent at: @mess.SentAt.ToString("yyyy-MM-dd HH:mm")</small></p>
-
-                            @if (User.IsInRole("Admin") || (currentUser != null && currentUser.Id == mess.UserId))
-                            {
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a class="btn btn-secondary btn-sm" asp-action="Edit" asp-controller="Messages" asp-route-id="@mess.Id">Edit</a>
-                                    <form asp-action="Delete" asp-controller="Messages" asp-route-id="@mess.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this message?');">
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                    </form>
-                                </div>
-                            }
-                        </div>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p><strong>@message.User.UserName:</strong> @message.TextMessage</p>
+                        <p class="text-muted"><small>Sent at: @message.SentAt.ToString("yyyy-MM-dd HH:mm")</small></p>
+                        @if (User.IsInRole("Admin") || message.UserId == ViewBag.CurrentUserId)
+                        {
+                            <div class="d-flex justify-content-end">
+                                <a asp-action="Edit" asp-controller="Messages" asp-route-id="@message.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <form asp-action="Delete" asp-controller="Messages" asp-route-id="@message.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger ms-2">Delete</button>
+                                </form>
+                            </div>
+                        }
                     </div>
-                }
-            }
-            else
-            {
-                <p class="text-center">No messages found in this group.</p>
-            }
-        </div>
-    </div>
-
-    <!-- separator pentru adaugarea unui mesaj -->
-    <hr class="my-4" />
-
-    <!-- card mesaj nou -->
-    <div class="card">
-        <div class="card-header">
-            <h5>Send a New Message</h5>
-        </div>
-        <div class="card-body">
-            <form method="post" asp-action="Show" asp-controller="Groups" asp-route-id="@Model.Id">
-                <div class="form-group">
-                    <input type="hidden" name="GroupId" value="@Model.Id" />
-                    <label for="TextMessage">Message Content</label>
-                    <textarea class="form-control" name="TextMessage" id="TextMessage" placeholder="Type your message here..." required></textarea>
-                    @Html.ValidationMessage("TextMessage", null, new { @class = "text-danger" })
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Send Message</button>
-            </form>
-        </div>
+            }
+        }
+        else
+        {
+            <p>No messages in this group yet.</p>
+        }
     </div>
 </div>
+
+<!--adaugare mesaj-->
+<h4>Add a New Message</h4>
+<form asp-action="Show" asp-controller="Groups" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <div class="form-group">
+        <label for="TextMessage">Message:</label>
+        <textarea name="TextMessage" class="form-control" placeholder="Write your message here..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-success mt-2">Send Message</button>
+</form>
+
+<hr />
+
+<!--parasire grup-->
+@if (ViewBag.UserGroups != null && ((List<int>)ViewBag.UserGroups).Contains(Model.Id))
+{
+    <form asp-action="LeaveGroup" asp-controller="Groups" method="post" class="mt-3">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-warning">Leave Group</button>
+    </form>
+}
+
+
+
+<hr />
+
+<!--lista membrilor din grup-->
+<h3>Group Members</h3>
+<ul class="list-group">
+    @foreach (var member in Model.UserGroups)
+    {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            @member.User.UserName
+            @if (User.IsInRole("Admin") || Model.UserId == ViewBag.CurrentUserId)
+            {
+                <form asp-action="RemoveMember" asp-controller="Groups" method="post">
+                    <input type="hidden" name="groupId" value="@Model.Id" />
+                    <input type="hidden" name="userId" value="@member.UserId" />
+                    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                </form>
+            }
+        </li>
+    }
+</ul>
