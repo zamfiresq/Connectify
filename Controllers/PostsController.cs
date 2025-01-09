@@ -27,28 +27,37 @@ namespace Connectify.Controllers
         public ActionResult Index()
         {
             var currentUser = _userManager.GetUserAsync(User).Result; // Get the current logged-in user
-            ViewBag.CurrentUserId = currentUser?.Id;
+            var currentUserId = currentUser?.Id;
+            var isAdmin = User.IsInRole("Admin");
 
+            ViewBag.CurrentUserId = currentUserId;
+
+            // Fetch posts with filtering based on user role
             var posts = _db.Posts
-               .Include(p => p.Comments)
-               .ThenInclude(c => c.User)
-               .Include(p => p.User)
-               .Select(p => new
-               {
-                   p.Id,
-                   p.Content,
-                   p.PostedAt,
-                   p.Media, // Include Media property
-                   CommentCount = p.Comments.Count,
-                   User = p.User, // Explicitly include the User
-                   
-               })
-               .ToList();
+                .Include(p => p.Comments)
+                .ThenInclude(c => c.User)
+                .Include(p => p.User)
+                .Where(p =>
+                    isAdmin || // Admins can see all posts
+                    (currentUser == null && (p.User == null || !p.User.IsPrivate)) || // Unauthenticated users see only public profiles
+                    (currentUser != null && (p.User == null || !p.User.IsPrivate || p.User.Id == currentUserId)) // Authenticated users see their own and public posts
+                ) // Filter for non-admins
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Content,
+                    p.PostedAt,
+                    p.Media, // Include Media property
+                    CommentCount = p.Comments.Count,
+                    User = p.User // Explicitly include the User
+                })
+                .ToList();
 
             ViewBag.Posts = posts;
 
             return View();
         }
+
 
 
 

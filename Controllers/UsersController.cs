@@ -133,6 +133,9 @@ namespace Connectify.Controllers
                 return NotFound(); // User not found
             }
 
+            var currentUserId = _userManager.GetUserId(User);
+            ViewBag.CurrentUserId = currentUserId; // Pass current user ID to the view
+
             // Return the view with the user data
             return View(user);
         }
