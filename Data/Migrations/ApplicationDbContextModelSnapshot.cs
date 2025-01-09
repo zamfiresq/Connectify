@@ -493,6 +493,7 @@ namespace Connectify.Data.Migrations
 
             modelBuilder.Entity("Connectify.Models.ApplicationUser", b =>
                 {
+
                     b.Navigation("Comments");
 
                     b.Navigation("Messages");
@@ -500,6 +501,7 @@ namespace Connectify.Data.Migrations
                     b.Navigation("Posts");
 
                     b.Navigation("UserGroups");
+
                 });
 
             modelBuilder.Entity("Connectify.Models.Group", b =>

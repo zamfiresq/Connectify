@@ -16,12 +16,11 @@ namespace Connectify.Models
         //public string ProfilePicture { get; set; }
         public bool IsPrivate { get; set; } // daca profilul este privat sau nu
 
-        // un user poate avea mai multe postari
-        public ICollection<Post>? Posts { get; set; }
 
-        // un user poate avea mai multe comentarii
-        public ICollection<Comment>? Comments { get; set; }
-
+        // pentru selectarea rolurilor 
+        [NotMapped]
+        public IEnumerable<SelectListItem>? Roles { get; set; } 
+        
         // un user poate trimite mai multe mesaje 
         public ICollection<Message>? Messages { get; set; }
 
@@ -32,11 +31,7 @@ namespace Connectify.Models
         // public ICollection<FollowRequest>? SentFollowRequests { get; set; }
         // public ICollection<FollowRequest>? ReceivedFollowRequests { get; set; }
 
-
-        // pentru selectarea rolurilor dintr-un dropdown
-        [NotMapped]
-        public IEnumerable<SelectListItem>? Roles { get; set; } 
-
+        public ICollection<Post> Posts { get; set; } // A user can have many posts
 
 
 

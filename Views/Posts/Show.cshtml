@@ -9,11 +9,15 @@
     <h2 class="text-center display-3 mb-0" style="flex-grow: 1; text-align: center;">Post</h2>
 
     <!-- Delete Post Button (Right-Aligned) -->
-    <div>
-        <form method="post" action="/Posts/Delete/@ViewBag.Post.Id">
-            <button type="submit" class="btn btn-danger btn-lg" style="margin-right: 20px;">Delete Post</button>
-        </form>
-    </div>
+    
+    @if (ViewBag.Post.UserId == ViewBag.CurrentUserId)
+    {
+        <div>
+            <form method="post" action="/Posts/Delete/@ViewBag.Post.Id">
+                <button type="submit" class="btn btn-danger btn-lg" style="margin-right: 20px;">Delete Post</button>
+            </form>
+        </div>
+    }
 </header>
 
 <div class="container">
@@ -62,6 +66,8 @@
                     <small class="text-muted">
                         @comm.CommentedAt.ToString("dd MMMM yyyy HH:mm")
                     </small>
+                    <!-- Check if User is not null before accessing UserName -->
+                    <small class="text-muted">by @(comm.User != null ? $"{comm.User.FirstName} {comm.User.LastName}" : "Anonymous")</small>
 
                     <!-- Edit and Delete Buttons (Right-Aligned) -->
                     <div>
