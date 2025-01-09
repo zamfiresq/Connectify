@@ -103,8 +103,9 @@
         </div>
 
         <!-- Posts Section -->
-        @if (!Model.IsPrivate){
-        <div class="mt-4">
+        @if (!Model.IsPrivate || User.IsInRole("Admin") || Model.Id == ViewBag.CurrentUserId){
+
+            <div class="mt-4">
             <h3>Posts</h3>
             @if (Model.Posts != null && Model.Posts.Any())
             {
