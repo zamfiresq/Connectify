@@ -90,9 +90,13 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/Posts/Index">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Posts/Create">Add Post</a>
-                    </li>
+                    @if (User.IsInRole("Admin") || (User.IsInRole("User")))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Posts/Create">Add Post</a>
+                        </li>
+                    }
+
                     <li class="nav-item">
                         <a class="nav-link" href="/Groups/Index">Groups</a>
                     </li>

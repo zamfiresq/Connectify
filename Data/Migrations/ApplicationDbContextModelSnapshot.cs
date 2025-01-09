@@ -380,7 +380,7 @@ namespace Connectify.Data.Migrations
                         .HasForeignKey("PostId");
 
                     b.HasOne("Connectify.Models.ApplicationUser", "User")
-                        .WithMany("Comments")
+                        .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("Post");
@@ -493,15 +493,11 @@ namespace Connectify.Data.Migrations
 
             modelBuilder.Entity("Connectify.Models.ApplicationUser", b =>
                 {
-
-                    b.Navigation("Comments");
-
                     b.Navigation("Messages");
 
                     b.Navigation("Posts");
 
                     b.Navigation("UserGroups");
-
                 });
 
             modelBuilder.Entity("Connectify.Models.Group", b =>

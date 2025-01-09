@@ -3,6 +3,7 @@ using Connectify.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 
 namespace Connectify.Controllers
 {
@@ -30,7 +31,7 @@ namespace Connectify.Controllers
 
 
 
-        [Authorize]
+        [Authorize(Roles ="User,Admin")]
         [HttpPost]
         public async Task<IActionResult> New(Comment comm)
         {
@@ -67,11 +68,15 @@ namespace Connectify.Controllers
         }
 
 
-
+        [Authorize(Roles = "User,Admin")]
         [HttpPost]
         public IActionResult Delete(int id)
         {
+            var currentUser = _userManager.GetUserAsync(User).Result; // Get the current logged-in user
+            ViewBag.CurrentUserId = currentUser?.Id;
+            
             Comment comm = _db.Comments.Find(id);
+            ViewBag.comm = comm;
             _db.Comments.Remove(comm);
             _db.SaveChanges();
             return Redirect("/Posts/Show/" + comm.PostId);
