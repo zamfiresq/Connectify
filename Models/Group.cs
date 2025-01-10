@@ -16,9 +16,9 @@ namespace Connectify.Models
         public string? UserId { get; set; }
 
         // un grup are o lista de mesaje
-        public virtual ICollection<Message> Messages { get; set; }
+        public virtual ICollection<Message>? Messages { get; set; }
 
         // un grup are o lista de useri
-        public virtual ICollection<UserGroup> UserGroups { get; set; }
+        public virtual ICollection<UserGroup>? UserGroups { get; set; }
     }
 }

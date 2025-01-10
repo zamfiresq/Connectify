@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Connectify.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250109170823_UserGroupsMigr")]
+    [Migration("20250110015622_UserGroupsMigr")]
     partial class UserGroupsMigr
     {
         /// <inheritdoc />
