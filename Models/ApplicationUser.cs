@@ -28,8 +28,8 @@ namespace Connectify.Models
         public ICollection<UserGroup>? UserGroups { get; set; }
 
         // un user poate trimite si primi mai multe cereri de follow
-        // public ICollection<FollowRequest>? SentFollowRequests { get; set; }
-        // public ICollection<FollowRequest>? ReceivedFollowRequests { get; set; }
+        public ICollection<FollowRequest>? Followers { get; set; }
+        public ICollection<FollowRequest>? Following { get; set; }
 
         public ICollection<Post> Posts { get; set; } // A user can have many posts
 

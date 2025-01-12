@@ -1,0 +1,28 @@
+﻿@model List<FollowRequest>
+
+<div class="container">
+    <h2>Follow Requests</h2>
+    @if (Model.Any())
+    {
+        <ul class="list-group">
+            @foreach (var request in Model)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@request.Sender.FirstName @request.Sender.LastName</span>
+                    <div>
+                        <form asp-action="AcceptFollowRequest" asp-route-requestId="@request.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                        </form>
+                        <form asp-action="DeclineFollowRequest" asp-route-requestId="@request.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No follow requests found.</p>
+    }
+</div>

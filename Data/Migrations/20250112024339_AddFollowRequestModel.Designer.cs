@@ -4,6 +4,7 @@ using Connectify.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Connectify.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250112024339_AddFollowRequestModel")]
+    partial class AddFollowRequestModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -421,13 +424,13 @@ namespace Connectify.Data.Migrations
             modelBuilder.Entity("Connectify.Models.FollowRequest", b =>
                 {
                     b.HasOne("Connectify.Models.ApplicationUser", "Receiver")
-                        .WithMany("Followers")
+                        .WithMany()
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Connectify.Models.ApplicationUser", "Sender")
-                        .WithMany("Following")
+                        .WithMany()
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -544,10 +547,6 @@ namespace Connectify.Data.Migrations
 
             modelBuilder.Entity("Connectify.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("Followers");
-
-                    b.Navigation("Following");
-
                     b.Navigation("Messages");
 
                     b.Navigation("Posts");
