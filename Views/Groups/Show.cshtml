@@ -7,7 +7,7 @@
 }
 
 <div class="container my-5">
-    <!-- Titlu grup -->
+    <!-- titlu grup -->
     <div class="row mb-4">
         <div class="col text-center">
             <h1 class="display-4">@Model.GroupName</h1>
@@ -15,8 +15,8 @@
         </div>
     </div>
 
-    <!-- Mesaje flash -->
-    @if (TempData.ContainsKey("message"))
+    <!-- mesaje flash -->
+@*     @if (TempData.ContainsKey("message"))
     {
         <div class="row mb-4">
             <div class="col">
@@ -25,9 +25,9 @@
                 </div>
             </div>
         </div>
-    }
+    } *@
 
-    <!-- Mesaje din grup -->
+    <!-- mesaje din grup -->
     <div class="row mb-4">
         <div class="col">
             <h3>Group Messages</h3>
@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <!-- Adăugare mesaj -->
+    <!-- adaugare mesaj -->
     <div class="row mb-4">
         <div class="col">
             <h4>Add a New Message</h4>
@@ -85,7 +85,7 @@
         </div>
     </div>
 
-    <!-- Membrii grupului -->
+    <!-- membrii grupului -->
     @if (Model.UserGroups != null)
     {
         <div class="row">

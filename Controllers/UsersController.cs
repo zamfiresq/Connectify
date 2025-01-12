@@ -24,13 +24,10 @@ namespace Connectify.Controllers
 
 
 
-        [Authorize] // Ensure the user is logged in
+        [Authorize]
         public IActionResult Edit(string id)
         {
-            // Get the currently logged-in user's ID
             var currentUserId = _userManager.GetUserId(User);
-
-            // Find the user by id
             var user = _context.Users.FirstOrDefault(u => u.Id == id);
 
             if (user == null)
@@ -38,14 +35,14 @@ namespace Connectify.Controllers
                 return NotFound();
             }
 
-            // Check if the logged-in user is an admin or the owner of the profile
-            var isAdmin = User.IsInRole("Admin"); // Check if the logged-in user is an admin
+            //verificam daca userul logat este admin sau daca este cel care are profilul actual
+            var isAdmin = User.IsInRole("Admin"); // verificare admin
             if (user.Id != currentUserId && !isAdmin)
             {
-                return Forbid(); // Return 403 Forbidden if unauthorized
+                return Forbid(); // forbidden
             }
 
-            // Map user to a ViewModel
+            // model de editare pentru utilizator
             var editModel = new ApplicationUserEdit
             {
                 Id = user.Id,
@@ -59,14 +56,11 @@ namespace Connectify.Controllers
         }
 
         [HttpPost]
-        [Authorize] // Ensure the user is logged in
+        [Authorize]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(ApplicationUserEdit model)
         {
-            // Get the currently logged-in user's ID
             var currentUserId = _userManager.GetUserId(User);
-
-            // Find the user by id
             var user = _context.Users.FirstOrDefault(u => u.Id == model.Id);
 
             if (user == null)
@@ -74,11 +68,11 @@ namespace Connectify.Controllers
                 return NotFound();
             }
 
-            // Check if the logged-in user is an admin or the owner of the profile
+            // verificam daca userul logat este admin sau daca este cel care are profilul actual
             var isAdmin = User.IsInRole("Admin");
             if (user.Id != currentUserId && !isAdmin)
             {
-                return Forbid(); // Return 403 Forbidden if unauthorized
+                return Forbid();
             }
 
             if (!ModelState.IsValid)
@@ -86,20 +80,20 @@ namespace Connectify.Controllers
                 return View(model);
             }
 
-            // Update the user's fields
+            // dam update la datele userului
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.Bio = model.Bio;
             user.IsPrivate = model.IsPrivate;
 
-            // Save changes to the database
+            // salvare in db
             _context.SaveChanges();
 
             return RedirectToAction("Show", new { id = user.Id });
         }
 
 
-
+        // search action
         public IActionResult Search(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -114,41 +108,40 @@ namespace Connectify.Controllers
             return PartialView("UserSearchResults", users);
         }
 
+        // show - afisarea profilului unui user
         public IActionResult Show(string id)
         {
-            // Găsim utilizatorul prin ID
             var user = _context.Users
                 .Include(u => u.Posts)
                     .ThenInclude(p => p.Comments)
-                .Include(u => u.Followers) // Include relația pentru urmăritori
-                .Include(u => u.Following) // Include relația pentru urmăriți
+                .Include(u => u.Followers) // urmaritori
+                .Include(u => u.Following) // cei pe care ii urmaresc
                 .FirstOrDefault(u => u.Id == id);
 
-            // Verificăm dacă utilizatorul există
+            // verificam daca userul exista
             if (user == null)
             {
-                return NotFound(); // Utilizatorul nu a fost găsit
+                return NotFound(); 
             }
 
-            // Obținem ID-ul utilizatorului curent
+            // user curent 
             var currentUserId = _userManager.GetUserId(User);
 
-            // Verificăm starea urmării
+            // statusul urmaririi
             var followRequest = _context.FollowRequests
                 .FirstOrDefault(r => r.SenderId == currentUserId && r.ReceiverId == id);
 
-            // Setăm starea urmării în ViewBag
+            // setare in viewbag
             ViewBag.IsFollowing = followRequest != null && followRequest.IsAccepted;
             ViewBag.IsPending = followRequest != null && !followRequest.IsAccepted;
 
-            // Verificăm dacă utilizatorul curent este proprietarul profilului
+            // daca userul curent este acelasi cu cel al profilului
             ViewBag.IsCurrentUser = currentUserId == id;
 
-            // Calculăm numărul de urmăritori și urmăriți
+            // calculare nr de urmaritori si urmariti
             ViewBag.FollowersCount = _context.FollowRequests.Count(r => r.ReceiverId == id && r.IsAccepted);
             ViewBag.FollowingCount = _context.FollowRequests.Count(r => r.SenderId == id && r.IsAccepted);
 
-            // Returnăm view-ul cu datele utilizatorului
             return View(user);
         }
 
@@ -162,7 +155,7 @@ namespace Connectify.Controllers
         {
             var senderId = _userManager.GetUserId(User);
 
-            // Nu permite utilizatorilor să trimită cereri către ei înșiși
+            // nu trebuie sa permitem sa ne urmarim pe noi insine
             if (senderId == receiverId)
             {
                 TempData["message"] = "You cannot follow yourself!";
@@ -170,7 +163,7 @@ namespace Connectify.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Verifică dacă există deja o cerere de urmărire neacceptată
+            // daca exista deja o cerere de urmarire neacceptata
             var existingRequest = _context.FollowRequests
                 .FirstOrDefault(r => r.SenderId == senderId && r.ReceiverId == receiverId && !r.IsAccepted);
 
@@ -181,7 +174,7 @@ namespace Connectify.Controllers
                 return RedirectToAction("Show", new { id = receiverId });
             }
 
-            // Creează o cerere nouă
+            // cream o noua cerere de urmarire
             var followRequest = new FollowRequest
             {
                 SenderId = senderId,
@@ -199,6 +192,7 @@ namespace Connectify.Controllers
         }
 
 
+
         // acceptarea unei cereri de urmarire
         [HttpPost]
         [Authorize(Roles = "User,Admin")]
@@ -206,7 +200,7 @@ namespace Connectify.Controllers
         {
             var currentUserId = _userManager.GetUserId(User);
 
-            // Găsește cererea de urmărire
+            // gasim cererea de urmarire
             var followRequest = _context.FollowRequests
                 .FirstOrDefault(r => r.Id == requestId && r.ReceiverId == currentUserId && !r.IsAccepted);
 
@@ -217,7 +211,7 @@ namespace Connectify.Controllers
                 return RedirectToAction("FollowRequests");
             }
 
-            // Acceptă cererea
+            // acceptam cererea
             followRequest.IsAccepted = true;
             _context.SaveChanges();
 
@@ -246,6 +240,7 @@ namespace Connectify.Controllers
                 return RedirectToAction("FollowRequests");
             }
 
+            // stergem cererea
             _context.FollowRequests.Remove(followRequest);
             _context.SaveChanges();
 
@@ -256,7 +251,7 @@ namespace Connectify.Controllers
         }
 
 
-        // lista cererilor de urmarire
+        // afisarea listei cu cererile de urmarire
         [Authorize(Roles = "User,Admin")]
         public IActionResult FollowRequests()
         {
@@ -271,7 +266,7 @@ namespace Connectify.Controllers
         }
 
 
-        // posibilitatea de a da cancel la cererea de urmarire
+        // posibilitatea de a da cancel la request 
         [HttpPost]
         [Authorize(Roles = "User,Admin")]
         public IActionResult CancelFollowRequest(int requestId)
@@ -281,6 +276,7 @@ namespace Connectify.Controllers
             var followRequest = _context.FollowRequests
                 .FirstOrDefault(r => r.Id == requestId && r.SenderId == currentUserId && !r.IsAccepted);
 
+            // daca nu gasim cererea sau aceasta a fost deja acceptata
             if (followRequest == null)
             {
                 TempData["message"] = "Follow request not found or already processed.";
@@ -301,19 +297,19 @@ namespace Connectify.Controllers
         {
             var currentUserId = _userManager.GetUserId(User);
 
-            // Preluăm lista tuturor utilizatorilor (excluzând utilizatorul curent)
+            // lista cu toti userii, cu exceptia celui curent
             var users = _context.Users
                 .Where(u => u.Id != currentUserId)
                 .ToList();
 
-            // Preluăm utilizatorii pe care îi urmărește deja utilizatorul curent
+            // userii pe care ii urmareste userul curent
             var following = _context.FollowRequests
                 .Where(fr => fr.SenderId == currentUserId && fr.IsAccepted)
                 .Select(fr => fr.ReceiverId)
                 .ToList();
 
             ViewBag.Following = following;
-            return View(users); // Trimitem utilizatorii către view
+            return View(users);
         }
 
 

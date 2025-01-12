@@ -65,7 +65,7 @@ namespace Connectify.Data
                 .HasOne(frq => frq.Receiver)
                 .WithMany(u => u.Followers)                             
                 .HasForeignKey(frq => frq.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);     // daca stergem un user, nu vrem sa stergem si cererile de follow
+                .OnDelete(DeleteBehavior.Restrict); 
 
         }
 

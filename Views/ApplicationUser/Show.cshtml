@@ -13,8 +13,6 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Custom styles (same as your current ones) */
-        /* ... */
     </style>
 </head>
 <body>
@@ -24,7 +22,7 @@
         </div>
 
         <div class="row">
-            <!-- Profile Card -->
+            <!-- card profil -->
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -79,7 +77,7 @@
             </div>
         </div>
 
-        <!-- Posts Section -->
+        <!-- sectiune de postari -->
         @if (!Model.IsPrivate || User.IsInRole("Admin") || Model.Id == ViewBag.CurrentUserId)
         {
             <div class="mt-4">
@@ -107,17 +105,17 @@
                                     </div>
                                     <div class="post-card-body">
                                         <p>@post.Content</p>
-                                        <!-- Media Section -->
+                                        <!-- media -->
                                         @if (!string.IsNullOrEmpty(post.Media))
                                         {
-                                            <!-- If it's an image -->
+                                            <!-- imagini -->
                                             @if (post.Media.EndsWith(".jpg") || post.Media.EndsWith(".jpeg") || post.Media.EndsWith(".png") || post.Media.EndsWith(".gif"))
                                             {
                                                 <div class="text-center mb-3">
                                                     <img src="@post.Media" alt="Post Image" class="img-fluid rounded" style="max-height: 300px; object-fit: cover;">
                                                 </div>
                                             }
-                                            <!-- If it's a video -->
+                                            <!-- video -->
                                             @if (post.Media.EndsWith(".mp4") || post.Media.EndsWith(".mov") || post.Media.EndsWith(".avi"))
                                             {
                                                 <div class="text-center mb-3">
@@ -131,9 +129,9 @@
                                     </div>
                                     <div class="post-footer">
                                         <div class="post-actions d-flex justify-content-between align-items-center">
-                                            <!-- Edit Post Button -->
+                                            <!-- buton de editare -->
                                             <a class="btn btn-sm btn-warning" href="/Posts/Edit/@post.Id">Edit Post</a>
-                                            <!-- Comment Count -->
+                                            <!-- nr comentarii -->
                                             <a class="text-decoration-underline text-info" href="/Posts/Show/@post.Id">@post.Comments.Count() comments</a>
                                         </div>
                                     </div>

@@ -126,15 +126,14 @@ namespace Connectify.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
-                // Completează câmpurile FirstName și LastName
+                // campurile pentru first name si last name
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
 
-                // Setează Email și UserName
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
-                // Creează utilizatorul
+                // creez userul
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
@@ -144,7 +143,7 @@ namespace Connectify.Areas.Identity.Pages.Account
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    // Adaugă rolul de "User" pentru utilizatorul nou creat
+                    // adaugarea rolului de user
                     await _userManager.AddToRoleAsync(user, "User");
 
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -168,14 +167,12 @@ namespace Connectify.Areas.Identity.Pages.Account
                     }
                 }
 
-                // Adaugă erorile la ModelState
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            // Dacă a apărut o eroare, redisplay form
             return Page();
         }
 

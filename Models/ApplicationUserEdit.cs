@@ -4,7 +4,7 @@ namespace Connectify.Models
 {
     public class ApplicationUserEdit
     {
-        public string Id { get; set; } // Keep the ID for identifying the user
+        public string Id { get; set; } 
         [Required]
         [StringLength(50)]
         public string FirstName { get; set; }

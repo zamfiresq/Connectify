@@ -9,7 +9,7 @@
                     <p class="card-text"><strong>Bio:</strong> @user.Bio</p>
                     <p class="card-text"><strong>Private Profile:</strong> @(user.IsPrivate ? "Yes" : "No")</p>
 
-                    <!-- Buton pentru a vedea profilul utilizatorului -->
+                    <!-- buton de view profile -->
                     <a href="@Url.Action("Show", "ApplicationUser", new { id = user.Id })" class="btn btn-primary">View Profile</a>
                 </div>
             </div>

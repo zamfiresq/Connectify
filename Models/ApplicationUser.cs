@@ -31,7 +31,8 @@ namespace Connectify.Models
         public ICollection<FollowRequest>? Followers { get; set; }
         public ICollection<FollowRequest>? Following { get; set; }
 
-        public ICollection<Post> Posts { get; set; } // A user can have many posts
+        // un user poate face mai multe postari
+        public ICollection<Post> Posts { get; set; } 
 
 
 

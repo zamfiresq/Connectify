@@ -1,14 +1,14 @@
-﻿<!-- Post Header and Buttons -->
+﻿<!-- header postare -->
 <header class="d-flex justify-content-between align-items-center my-4">
-    <!-- See All Posts Button (Left-Aligned) -->
+    <!-- vizualizare postari -->
     <div>
         <a href="/Posts/Index" class="btn btn-success btn-lg" style="margin-left: 20px;">See All Posts</a>
     </div>
 
-    <!-- Post Header Title -->
+    <!-- titlu postare -->
     <h2 class="text-center display-3 mb-0" style="flex-grow: 1; text-align: center;">Post</h2>
 
-    <!-- Delete Post Button (Right-Aligned) -->
+    <!-- buton de stergere -->
     @if (User.IsInRole("Admin") || (User.IsInRole("User") && ViewBag.post.User?.Id == ViewBag.CurrentUserId))
     {
         <div>
@@ -20,14 +20,14 @@
 </header>
 
 <div class="container">
-    <!-- Post Content -->
+    <!-- continut postare -->
     <div class="post-content mb-5" style="background-color: #f1f3f5; padding: 20px; border-radius: 8px; color: #6c757d;">
         <p class="lead">@ViewBag.Post.Content</p>
         <small class="text-muted d-block mb-3">
             @ViewBag.Post.PostedAt.ToString("dd MMMM yyyy HH:mm")
         </small>
 
-        <!-- Display Attached Media -->
+        <!-- atasare fisier media -->
         @if (!string.IsNullOrEmpty(ViewBag.Post.Media))
         {
             <div class="post-media mt-3">
@@ -50,7 +50,7 @@
 
     <hr class="mt-4" />
 
-    <!-- Comments Section -->
+    <!-- sectiune de comentarii -->
     <div class="comments-section mb-5">
         <h4 class="mb-4 mt-6">Comments (@ViewBag.Post.Comments.Count)</h4>
 
@@ -61,14 +61,14 @@
                     @comm.Text
                 </p>
                 <div class="d-flex justify-content-between align-items-center">
-                    <!-- Commented At Date -->
+                    <!-- data comentariului -->
                     <small class="text-muted">
                         @comm.CommentedAt.ToString("dd MMMM yyyy HH:mm")
                     </small>
-                    <!-- Check if User is not null before accessing UserName -->
+                    <!-- verific daca exista user -->
                     <small class="text-muted">by @(comm.User != null ? $"{comm.User.FirstName} {comm.User.LastName}" : "Anonymous")</small>
 
-                    <!-- Edit and Delete Buttons (Right-Aligned) -->
+                    <!-- butoane de edit si delete -->
                     @if (User.IsInRole("Admin") || (User.IsInRole("User") && comm.User?.Id == ViewBag.CurrentUserId))
                     {
                         <div>
@@ -97,17 +97,16 @@
                 <h5 class="mb-0">Add a Comment</h5>
             </div>
             <div class="card-body">
-                <!-- Add Comment Form -->
+                <!-- form pentru comentariu -->
                 <form method="post" asp-controller="Comments" asp-action="New" class="d-flex flex-column">
                     <input type="hidden" name="PostId" value="@ViewBag.Post.Id" />
 
-                    <!-- Comment Content Textarea -->
                     <div class="form-group mb-3">
                         <label for="commentText">Comment Content</label>
                         <textarea class="form-control" id="commentText" name="Text" rows="3" required></textarea>
                     </div>
 
-                    <!-- Submit Button (inside the form) -->
+                    <!-- submit -->
                     <button type="submit" class="btn btn-success btn-sm mt-3">Add Comment</button>
                 </form>
             </div>

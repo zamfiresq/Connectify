@@ -2,13 +2,13 @@
 
 <div class="container">
     <form method="post" action="/Comments/Edit/@ViewBag.Comment.Id">
-        <!-- Form Group for Content -->
+        <!-- continut comentariu -->
         <div class="mb-4">
             <label for="content" class="form-label">Comment Content</label>
             <textarea id="content" name="Text" class="form-control" rows="4" required>@ViewBag.Comment.Text</textarea>
         </div>
 
-        <!-- Submit and Cancel Buttons -->
+        <!-- submit si cancel -->
         <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
             <a href="/Posts/Show/@ViewBag.Comment.PostId" class="btn btn-danger btn-lg">Cancel</a>
