@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Connectify.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250110015622_UserGroupsMigr")]
-    partial class UserGroupsMigr
+    [Migration("20250112015954_MigrUsrGrp")]
+    partial class MigrUsrGrp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -144,11 +144,13 @@ namespace Connectify.Data.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("GroupName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -168,7 +170,7 @@ namespace Connectify.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("GroupId")
+                    b.Property<int>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("SentAt")
@@ -176,7 +178,8 @@ namespace Connectify.Data.Migrations
 
                     b.Property<string>("TextMessage")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -407,7 +410,9 @@ namespace Connectify.Data.Migrations
                 {
                     b.HasOne("Connectify.Models.Group", "Group")
                         .WithMany("Messages")
-                        .HasForeignKey("GroupId");
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Connectify.Models.ApplicationUser", "User")
                         .WithMany("Messages")
