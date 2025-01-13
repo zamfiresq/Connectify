@@ -267,30 +267,59 @@ namespace Connectify.Controllers
 
 
         // posibilitatea de a da cancel la request 
+        //[HttpPost]
+        //[Authorize(Roles = "User,Admin")]
+        //public IActionResult CancelFollowRequest(int requestId)
+        //{
+        //    var currentUserId = _userManager.GetUserId(User);
+
+        //    var followRequest = _context.FollowRequests
+        //        .FirstOrDefault(r => r.Id == requestId && r.SenderId == currentUserId && !r.IsAccepted);
+
+        //    // daca nu gasim cererea sau aceasta a fost deja acceptata
+        //    if (followRequest == null)
+        //    {
+        //        TempData["message"] = "Follow request not found or already processed.";
+        //        TempData["messageType"] = "alert-danger";
+
+        //        return RedirectToAction("Index");
+
+        //    }
+
+        //    _context.FollowRequests.Remove(followRequest);
+        //    _context.SaveChanges();
+
+        //    TempData["message"] = "Follow request canceled.";
+        //    TempData["messageType"] = "alert-success";
+
+        //    return RedirectToAction
+        //        ("Show", "ApplicationUser", new { id = followRequest.ReceiverId });
+        //}
+
+
+        // unfollow
         [HttpPost]
         [Authorize(Roles = "User,Admin")]
-        public IActionResult CancelFollowRequest(int requestId)
+        public IActionResult Unfollow(string userId)
         {
             var currentUserId = _userManager.GetUserId(User);
-
             var followRequest = _context.FollowRequests
-                .FirstOrDefault(r => r.Id == requestId && r.SenderId == currentUserId && !r.IsAccepted);
-
-            // daca nu gasim cererea sau aceasta a fost deja acceptata
+                .FirstOrDefault(r => r.SenderId == currentUserId && r.ReceiverId == userId && r.IsAccepted);
             if (followRequest == null)
             {
-                TempData["message"] = "Follow request not found or already processed.";
+                TempData["message"] = "You are not following this user.";
                 TempData["messageType"] = "alert-danger";
-                return RedirectToAction("Index");
+                return RedirectToAction("Show", new { id = userId });
             }
-
             _context.FollowRequests.Remove(followRequest);
             _context.SaveChanges();
-
-            TempData["message"] = "Follow request canceled.";
+            TempData["message"] = "Unfollowed successfully!";
             TempData["messageType"] = "alert-success";
-            return RedirectToAction("Index");
+            return RedirectToAction("Show", new { id = userId });
         }
+
+
+
 
         // indexul utilizatorilor
         public IActionResult Index()
@@ -308,6 +337,7 @@ namespace Connectify.Controllers
                 .Select(fr => fr.ReceiverId)
                 .ToList();
 
+            ViewBag.UserId = currentUserId;
             ViewBag.Following = following;
             return View(users);
         }

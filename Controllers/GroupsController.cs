@@ -487,6 +487,8 @@ namespace Connectify.Controllers
             return RedirectToAction("Show", new { id = groupId });
         }
 
+
+
         // metoda pentru respingerea cererii de intrare in grup
         [HttpPost]
         [Authorize(Roles = "Admin,User")]

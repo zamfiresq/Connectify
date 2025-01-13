@@ -5,13 +5,11 @@
 <h2>@ViewBag.Title</h2>
 <br />
 
-@if (TempData.ContainsKey("message"))
+@* @if (TempData["message"] != null && TempData["messageType"] != null)
 {
-    <div class="alert @(TempData["messageType"] ?? "alert-info")">
-        @TempData["message"]
-    </div>
-    TempData.Remove("message");
-}
+    <div class="alert @TempData["messageType"]">@TempData["message"]</div>
+} *@
+
 
 <br />
 
