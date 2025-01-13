@@ -65,9 +65,10 @@
                                 @if (ViewBag.IsFollowing)
                                 {
                                     <form method="post" action="/ApplicationUser/Unfollow" class="d-inline">
-                                        <input type="hidden" name="receiverId" value="@Model.Id" />
+                                        <input type="hidden" name="userId" value="@Model.Id" />
                                         <button type="submit" class="btn btn-secondary">Unfollow</button>
                                     </form>
+
                                 }
                                 else if (ViewBag.IsPending)
                                 {
@@ -88,7 +89,7 @@
         </div>
 
         <!-- sectiune de postari -->
-        @if (!Model.IsPrivate || User.IsInRole("Admin") || Model.Id == ViewBag.CurrentUserId)
+        @if (!Model.IsPrivate || User.IsInRole("Admin") || Model.Id == ViewBag.CurrentUserId || ViewBag.IsFollowing)
         {
             <div class="mt-4">
                 <h3>Posts</h3>

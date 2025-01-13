@@ -21,9 +21,6 @@ namespace Connectify.Controllers
         }
 
 
-
-
-
         [Authorize]
         public IActionResult Edit(string id)
         {
@@ -108,6 +105,8 @@ namespace Connectify.Controllers
             return PartialView("UserSearchResults", users);
         }
 
+
+
         // show - afisarea profilului unui user
         public IActionResult Show(string id)
         {
@@ -121,7 +120,7 @@ namespace Connectify.Controllers
             // verificam daca userul exista
             if (user == null)
             {
-                return NotFound(); 
+                return NotFound();
             }
 
             // user curent 
@@ -266,36 +265,6 @@ namespace Connectify.Controllers
         }
 
 
-        // posibilitatea de a da cancel la request 
-        //[HttpPost]
-        //[Authorize(Roles = "User,Admin")]
-        //public IActionResult CancelFollowRequest(int requestId)
-        //{
-        //    var currentUserId = _userManager.GetUserId(User);
-
-        //    var followRequest = _context.FollowRequests
-        //        .FirstOrDefault(r => r.Id == requestId && r.SenderId == currentUserId && !r.IsAccepted);
-
-        //    // daca nu gasim cererea sau aceasta a fost deja acceptata
-        //    if (followRequest == null)
-        //    {
-        //        TempData["message"] = "Follow request not found or already processed.";
-        //        TempData["messageType"] = "alert-danger";
-
-        //        return RedirectToAction("Index");
-
-        //    }
-
-        //    _context.FollowRequests.Remove(followRequest);
-        //    _context.SaveChanges();
-
-        //    TempData["message"] = "Follow request canceled.";
-        //    TempData["messageType"] = "alert-success";
-
-        //    return RedirectToAction
-        //        ("Show", "ApplicationUser", new { id = followRequest.ReceiverId });
-        //}
-
 
         // unfollow
         [HttpPost]
@@ -303,20 +272,38 @@ namespace Connectify.Controllers
         public IActionResult Unfollow(string userId)
         {
             var currentUserId = _userManager.GetUserId(User);
-            var followRequest = _context.FollowRequests
-                .FirstOrDefault(r => r.SenderId == currentUserId && r.ReceiverId == userId && r.IsAccepted);
-            if (followRequest == null)
+
+            try
             {
-                TempData["message"] = "You are not following this user.";
-                TempData["messageType"] = "alert-danger";
-                return RedirectToAction("Show", new { id = userId });
+                // gasim relatia de follow dintre userul curent si userul caruia ii dam unfollow
+                var followRequest = _context.FollowRequests
+                    .FirstOrDefault(r => r.SenderId == currentUserId && r.ReceiverId == userId && r.IsAccepted);
+
+                // daca relatia nu exista
+                if (followRequest == null)
+                {
+                    TempData["message"] = "You are not following this user.";
+                    TempData["messageType"] = "alert-danger";
+                    return RedirectToAction("Show", new { id = userId });
+                }
+
+                // stergere
+                _context.FollowRequests.Remove(followRequest);
+                _context.SaveChanges();
+
+                TempData["message"] = "Unfollowed successfully!";
+                TempData["messageType"] = "alert-success";
             }
-            _context.FollowRequests.Remove(followRequest);
-            _context.SaveChanges();
-            TempData["message"] = "Unfollowed successfully!";
-            TempData["messageType"] = "alert-success";
+            catch (Exception e)
+            {
+                TempData["message"] = "An error occurred while processing your request.";
+                TempData["messageType"] = "alert-danger";
+            }
+
+            // redirectionare user inapoi la profil
             return RedirectToAction("Show", new { id = userId });
         }
+
 
 
 
@@ -343,6 +330,35 @@ namespace Connectify.Controllers
         }
 
 
+
+        // metoda pentru vizibilitatea postarilor unui user (publice sau private)
+        [Authorize(Roles = "User,Admin")]
+        public IActionResult SeePosts(string id)
+        {
+            var currentUserId = _userManager.GetUserId(User); // user curent
+
+            var user = _context.Users
+                .Include(u => u.Posts)
+                    .ThenInclude(p => p.Comments)
+                .FirstOrDefault(u => u.Id == id);
+
+            if (user == null)
+            {
+                return NotFound(); 
+            }
+
+            // daca profilul este privat si userul curent nu este in lista de urmaritori
+            if (user.IsPrivate && !_context.FollowRequests.Any(r =>
+                r.SenderId == currentUserId &&
+                r.ReceiverId == id &&
+                r.IsAccepted))
+            {
+                return View("AccessDenied");
+
+            }
+
+            return View(user);
+        }
+
     }
 }
-
