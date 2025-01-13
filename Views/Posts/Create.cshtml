@@ -6,19 +6,19 @@
 
 <div class="container">
     <form method="post" action="/Posts/Create" enctype="multipart/form-data">
-        <!-- Form Group for Content -->
+        <!-- continut postare -->
         <div class="mb-4">
             <label for="Content" class="form-label">Post Content</label>
             <textarea class="form-control" id="Content" name="Content" required></textarea>
         </div>
 
-        <!-- Optional File Upload -->
+        <!-- adaugare fisier (optional) -->
         <div class="mb-4">
             <label for="Media" class="form-label">Upload Media (Image or Video) - Optional</label>
             <input type="file" class="form-control" id="Media" name="Media" accept="image/*,video/*" />
         </div>
 
-        <!-- Submit Button -->
+        <!-- buton de submit -->
         <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-success btn-lg">Add Post</button>
             <a href="/Posts/Index" class="btn btn-danger btn-lg">Cancel</a>

@@ -26,30 +26,30 @@ namespace Connectify.Controllers
 
         public ActionResult Index()
         {
-            var currentUser = _userManager.GetUserAsync(User).Result; // Get the current logged-in user
+            var currentUser = _userManager.GetUserAsync(User).Result; // userul curent
             var currentUserId = currentUser?.Id;
             var isAdmin = User.IsInRole("Admin");
 
             ViewBag.CurrentUserId = currentUserId;
 
-            // Fetch posts with filtering based on user role
+            // aducem postarile filtrate in functie de userul curent
             var posts = _db.Posts
                 .Include(p => p.Comments)
                 .ThenInclude(c => c.User)
                 .Include(p => p.User)
                 .Where(p =>
-                    isAdmin || // Admins can see all posts
-                    (currentUser == null && (p.User == null || !p.User.IsPrivate)) || // Unauthenticated users see only public profiles
-                    (currentUser != null && (p.User == null || !p.User.IsPrivate || p.User.Id == currentUserId)) // Authenticated users see their own and public posts
-                ) // Filter for non-admins
+                    isAdmin || // adminul vede toate postarile
+                    (currentUser == null && (p.User == null || !p.User.IsPrivate)) || // cei neautentificati vad doar postarile publice
+                    (currentUser != null && (p.User == null || !p.User.IsPrivate || p.User.Id == currentUserId)) // cei autentificati vad postarile publice si pe cele ale lor
+                )
                 .Select(p => new
                 {
                     p.Id,
                     p.Content,
                     p.PostedAt,
-                    p.Media, // Include Media property
+                    p.Media, // proprietatea media
                     CommentCount = p.Comments.Count,
-                    User = p.User // Explicitly include the User
+                    User = p.User // include userul
                 })
                 .ToList();
 
@@ -59,17 +59,15 @@ namespace Connectify.Controllers
         }
 
 
-
-
-
+        // metoda show
         public ActionResult Show(int id)
         {
 
-            var currentUser = _userManager.GetUserAsync(User).Result; // Get the current logged-in user
+            var currentUser = _userManager.GetUserAsync(User).Result; 
 
             Post post = _db.Posts
-                .Include(p => p.Comments) // Include Comments
-                .ThenInclude(c => c.User) // Include User for each comment
+                .Include(p => p.Comments) // includem comentariile
+                .ThenInclude(c => c.User) // includem userul care a scris comentariul
                 .Where(p => p.Id == id)
                 .FirstOrDefault();
 
@@ -79,12 +77,13 @@ namespace Connectify.Controllers
             }
 
             ViewBag.Post = post;
-            ViewBag.CurrentUserId = currentUser?.Id; // Pass the current user's ID to the view
+            ViewBag.CurrentUserId = currentUser?.Id; // pasam id-ul userului curent
 
             return View();
         }
 
 
+        // metoda create - new post
         public IActionResult Create()
         {
             return View();
@@ -113,7 +112,7 @@ namespace Connectify.Controllers
             post.PostedAt = DateTime.Now;
 
 
-            // Associate the post with the currently logged-in user
+            // asociem userul curent postarii
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser != null)
             {
@@ -121,10 +120,8 @@ namespace Connectify.Controllers
             }
             if (currentUser == null)
             {
-                // Add an error message and redirect to login or another page
                 TempData["ErrorMessage"] = "Cannot add post. Please log in first.";
                 return RedirectToPage("/Account/Login", new { area = "Identity" });
-                // Redirect to the login page or desired action
             }
 
             try
@@ -140,6 +137,8 @@ namespace Connectify.Controllers
             }
         }
 
+
+        [Authorize(Roles = "User,Admin")]
         public IActionResult Edit(int id)
         {
             Post? post = _db.Posts.Find(id);
@@ -159,21 +158,21 @@ namespace Connectify.Controllers
                 return StatusCode(StatusCodes.Status404NotFound);
             }
 
-            // Check if the current user is the post owner or an admin
+            // verificam daca userul curent este cel care a creat postarea sau admin
             var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            // Assuming Post has a property 'UserId' that links it to the user who created it
+            // postarea are un user asociat 
             if (post.UserId != currentUserId && !User.IsInRole("Admin"))
             {
-                return Forbid(); // Return 403 Forbidden if the user is neither the owner nor an admin
+                return Forbid(); // forbidden
             }
 
             try
             {
-                // Update content
+                // actualizare content
                 post.Content = requestPost.Content;
 
-                // Handle media removal
+                // stergere media
                 if (removeMedia && !string.IsNullOrEmpty(post.Media))
                 {
                     var existingMediaPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", post.Media.TrimStart('/'));
@@ -184,10 +183,10 @@ namespace Connectify.Controllers
                     post.Media = null;
                 }
 
-                // Handle new media upload
+                // dam upload la media noua
                 if (Media != null && Media.Length > 0)
                 {
-                    // Save new file
+                    // salvare fisier
                     var mediaPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", Media.FileName);
 
                     using (var stream = new FileStream(mediaPath, FileMode.Create))
@@ -195,11 +194,11 @@ namespace Connectify.Controllers
                         await Media.CopyToAsync(stream);
                     }
 
-                    // Update post's media
+                    // dam update la post
                     post.Media = "/uploads/" + Media.FileName;
                 }
 
-                // Update timestamp
+                // timestamp
                 post.PostedAt = requestPost.PostedAt;
 
                 _db.SaveChanges();
@@ -213,16 +212,16 @@ namespace Connectify.Controllers
         }
 
 
-
+        // metoda delete
         [Authorize(Roles = "User,Admin")]
         [HttpPost]
         public ActionResult Delete(int id)
         {
             var post = _db.Posts
-            .Include(p => p.Comments) // Include related comments
+            .Include(p => p.Comments) // includem comentariile
             .FirstOrDefault(p => p.Id == id);
 
-            var currentUser = _userManager.GetUserAsync(User).Result; // Get the current logged-in user
+            var currentUser = _userManager.GetUserAsync(User).Result; 
             ViewBag.CurrentUserId = currentUser?.Id;
             ViewBag.post = post;
 

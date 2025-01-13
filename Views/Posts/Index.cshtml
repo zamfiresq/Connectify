@@ -112,17 +112,17 @@
                     <div class="post-card-body">
                         <p>@post.Content</p>
 
-                        <!-- Media Section -->
+                        <!-- sectiune media -->
                         @if (!string.IsNullOrEmpty(post.Media))
                         {
-                            <!-- If it's an image -->
+                            <!-- daca am imagine -->
                             @if (post.Media.EndsWith(".jpg") || post.Media.EndsWith(".jpeg") || post.Media.EndsWith(".png") || post.Media.EndsWith(".gif"))
                             {
                                 <div class="text-center mb-3">
                                     <img src="@post.Media" alt="Post Image" class="img-fluid rounded" style="max-height: 300px; object-fit: cover;">
                                 </div>
                             }
-                            <!-- If it's a video -->
+                            <!-- daca am video -->
                             @if (post.Media.EndsWith(".mp4") || post.Media.EndsWith(".mov") || post.Media.EndsWith(".avi"))
                             {
                                 <div class="text-center mb-3">
@@ -141,7 +141,7 @@
                                 <a class="btn btn-sm btn-warning" href="/Posts/Edit/@post.Id">Edit Post</a>
                             }
 
-                            <!-- Comment Count -->
+                            <!-- nr comentarii -->
                             <a class="text-decoration-underline text-info" href="/Posts/Show/@post.Id">@post.CommentCount comments</a>
                            
                         </div>

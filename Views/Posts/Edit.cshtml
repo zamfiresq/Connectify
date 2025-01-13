@@ -1,18 +1,18 @@
 ﻿@{
-    Layout = "_Layout"; // Ensure you have the appropriate layout set for Bootstrap CSS and JS files
+    Layout = "_Layout"; 
 }
 
 <h2 class="text-center my-5">Edit Post</h2>
 
 <div class="container">
     <form method="post" action="/Posts/Edit/@ViewBag.Post.Id" enctype="multipart/form-data">
-        <!-- Form Group for Content -->
+        <!-- content -->
         <div class="mb-4">
             <label for="content" class="form-label">Edit Post Content</label>
             <input type="text" id="content" name="Content" class="form-control" value="@ViewBag.Post.Content" required />
         </div>
 
-        <!-- Display Current Media -->
+        <!-- afisare media curenta -->
         @if (!string.IsNullOrEmpty(ViewBag.Post.Media))
         {
             <div class="mb-4">
@@ -39,13 +39,13 @@
             </div>
         }
 
-        <!-- Form Group for New Media Upload -->
+        <!-- adaugare media nou -->
         <div class="mb-4">
             <label for="media" class="form-label">Upload New Media (optional)</label>
             <input type="file" id="media" name="Media" class="form-control" accept="image/*,video/*" />
         </div>
 
-        <!-- Submit Button -->
+        <!-- buton submit -->
         <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
             <a href="/Posts/Index" class="btn btn-danger btn-lg">Cancel</a>

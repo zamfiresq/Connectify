@@ -23,16 +23,15 @@
 
         #searchResults {
             position: absolute;
-            top: calc(100% + 10px); /* Positions it just below the search bar with a 10px gap */
-            left: 0;
+            top: calc(100% + 10px); 
             right: 0;
-            z-index: 1000; /* Ensures it stays above other elements */
-            margin-top: 0; /* Removes any unnecessary margin */
-            max-height: 300px; /* Limits height for better UX */
-            overflow-y: auto; /* Enables scrolling for long results */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds a shadow for visibility */
-            background-color: white; /* Ensures it stands out */
-            border: 1px solid #ccc; /* Adds a subtle border */
+            z-index: 1000; 
+            margin-top: 0; 
+            max-height: 300px; 
+            overflow-y: auto; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+            background-color: white; 
+            border: 1px solid #ccc; 
         }
 
 
@@ -100,6 +99,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/Groups/Index">Groups</a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ApplicationUser/Index">Users</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("FollowRequests", "ApplicationUser")">Follow Requests</a>
+                    </li>
+
                 </ul>
 
                 <!-- Search Bar -->

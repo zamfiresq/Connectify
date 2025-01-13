@@ -75,6 +75,16 @@ namespace Connectify.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            /// 
+
+            [Required]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [Required]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
+
             [Required]
             [EmailAddress]
             [Display(Name = "Email")]
@@ -111,12 +121,19 @@ namespace Connectify.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
 
+                // campurile pentru first name si last name
+                user.FirstName = Input.FirstName;
+                user.LastName = Input.LastName;
+
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                // creez userul
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
@@ -126,7 +143,7 @@ namespace Connectify.Areas.Identity.Pages.Account
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    // PASUL 9: useri si roluri (adaugarea rolului la inregistrare)
+                    // adaugarea rolului de user
                     await _userManager.AddToRoleAsync(user, "User");
 
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -149,15 +166,16 @@ namespace Connectify.Areas.Identity.Pages.Account
                         return LocalRedirect(returnUrl);
                     }
                 }
+
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
+
 
         private ApplicationUser CreateUser()
         {

@@ -13,58 +13,15 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .post-card {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1.5rem;
-        border-radius: 10px;
-        overflow: hidden;
-        background-color: #ffffff;
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
         }
 
-        .post-card-header {
-        background-color: #e3f2fd;
-        padding: 1rem;
-        border-bottom: 1px solid #bbdefb;
-        }
-
-        .post-card-body {
-        padding: 1rem;
-        }
-
-        .post-actions {
-        display: flex;
-        justify-content: flex-start;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        }
-
-        .post-footer {
-        background-color: #f1f8e9;
-        padding: 0.5rem 1rem;
-        border-top: 1px solid #c5e1a5;
-        }
-
-        .btn-primary {
-        background-color: #64b5f6;
-        border-color: #64b5f6;
-        }
-
-        .btn-warning {
-        background-color: #ffb74d;
-        border-color: #ffb74d;
-        }
-
-        .btn-success {
-        background-color: #81c784;
-        border-color: #81c784;
-        }
-
-        a.nav-link {
-        color: #706d6d !important;
-        }
-
-        .navbar-nav .nav-item .nav-link {
-        color: #706d6d;
+        .post-image {
+            max-height: 300px;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -75,18 +32,17 @@
         </div>
 
         <div class="row">
-            <!-- Profile Card -->
+            <!-- card profil -->
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="text-center mb-4">
-                            <img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle mb-3" width="150" height="150">
+                            <img src="https://via.placeholder.com/150" alt="Profile Picture" class="profile-picture mb-3">
                             <h4 class="card-title">@Model.UserName</h4>
                         </div>
                         <div class="mb-3">
                             <strong>Bio:</strong>
                             <p>@(Model.Bio ?? "This user has no bio.")</p>
-
                         </div>
                         <div class="mb-3">
                             <strong>Profile Status:</strong>
@@ -94,86 +50,116 @@
                                 @(Model.IsPrivate ? "Private" : "Public")
                             </p>
                         </div>
+                        <div class="mb-3">
+                            <strong>Followers:</strong> @(ViewBag.FollowersCount ?? 0)<br />
+                            <strong>Following:</strong> @(ViewBag.FollowingCount ?? 0)
+                        </div>
+
                         <div class="text-center">
-                            <a href="@Url.Action("Edit", "ApplicationUser", new { id = Model.Id })" class="btn btn-primary">Edit Profile</a>
+                            @if (ViewBag.IsCurrentUser)
+                            {
+                                <a href="@Url.Action("Edit", "ApplicationUser", new { id = Model.Id })" class="btn btn-primary">Edit Profile</a>
+                            }
+                            else
+                            {
+                                @if (ViewBag.IsFollowing)
+                                {
+                                    <form method="post" action="/ApplicationUser/Unfollow" class="d-inline">
+                                        <input type="hidden" name="userId" value="@Model.Id" />
+                                        <button type="submit" class="btn btn-secondary">Unfollow</button>
+                                    </form>
+
+                                }
+                                else if (ViewBag.IsPending)
+                                {
+                                    <button class="btn btn-warning" disabled>Pending</button>
+                                }
+                                else
+                                {
+                                    <form method="post" action="/ApplicationUser/SendFollowRequest" class="d-inline">
+                                        <input type="hidden" name="receiverId" value="@Model.Id" />
+                                        <button type="submit" class="btn btn-primary">Follow</button>
+                                    </form>
+                                }
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Posts Section -->
-        @if (!Model.IsPrivate || User.IsInRole("Admin") || Model.Id == ViewBag.CurrentUserId){
-
+        <!-- sectiune de postari -->
+        @if (!Model.IsPrivate || User.IsInRole("Admin") || Model.Id == ViewBag.CurrentUserId || ViewBag.IsFollowing)
+        {
             <div class="mt-4">
-            <h3>Posts</h3>
-            @if (Model.Posts != null && Model.Posts.Any())
-            {
-                <div class="row">
-                    @foreach (var post in Model.Posts.OrderByDescending(p => p.PostedAt))
-                    {
-                        <div class="col-md-8">
-                            <div class="post-card">
-                                <div class="post-card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">
-                                        Posted by
-                                        @if (post.User != null)
+                <h3>Posts</h3>
+                @if (Model.Posts != null && Model.Posts.Any())
+                {
+                    <div class="row">
+                        @foreach (var post in Model.Posts.OrderByDescending(p => p.PostedAt))
+                        {
+                            <div class="col-md-8">
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            Posted by
+                                            @if (post.User != null)
+                                            {
+                                                @($"{post.User.FirstName} {post.User.LastName}")
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Unknown User</span>
+                                            }
+                                        </h5>
+                                        <small class="text-muted">@post.PostedAt.ToString("dd MMMM yyyy HH:mm")</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>@post.Content</p>
+                                        <!-- media -->
+                                        @if (!string.IsNullOrEmpty(post.Media))
                                         {
-                                            @($"{post.User.FirstName} {post.User.LastName}")
+                                            <!-- imagini -->
+                                            @if (post.Media.EndsWith(".jpg") || post.Media.EndsWith(".jpeg") || post.Media.EndsWith(".png") || post.Media.EndsWith(".gif"))
+                                            {
+                                                <div class="text-center mb-3">
+                                                    <img src="@post.Media" alt="Post Image" class="img-fluid rounded post-image">
+                                                </div>
+                                            }
+                                            <!-- video -->
+                                            @if (post.Media.EndsWith(".mp4") || post.Media.EndsWith(".mov") || post.Media.EndsWith(".avi"))
+                                            {
+                                                <div class="text-center mb-3">
+                                                    <video controls class="w-100 rounded">
+                                                        <source src="@post.Media" type="video/mp4">
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                </div>
+                                            }
                                         }
-                                        else
-                                        {
-                                            <span class="text-muted">Unknown User</span>
-                                        }
-                                    </h5>
-                                    <small class="text-muted">@post.PostedAt.ToString("dd MMMM yyyy HH:mm")</small>
-                                </div>
-                                <div class="post-card-body">
-                                    <p>@post.Content</p>
-
-                                    <!-- Media Section -->
-                                    @if (!string.IsNullOrEmpty(post.Media))
-                                    {
-                                        <!-- If it's an image -->
-                                        @if (post.Media.EndsWith(".jpg") || post.Media.EndsWith(".jpeg") || post.Media.EndsWith(".png") || post.Media.EndsWith(".gif"))
-                                        {
-                                            <div class="text-center mb-3">
-                                                <img src="@post.Media" alt="Post Image" class="img-fluid rounded" style="max-height: 300px; object-fit: cover;">
-                                            </div>
-                                        }
-                                        <!-- If it's a video -->
-                                        @if (post.Media.EndsWith(".mp4") || post.Media.EndsWith(".mov") || post.Media.EndsWith(".avi"))
-                                        {
-                                            <div class="text-center mb-3">
-                                                <video controls class="w-100 rounded">
-                                                    <source src="@post.Media" type="video/mp4">
-                                                    Your browser does not support the video tag.
-                                                </video>
-                                            </div>
-                                        }
-                                    }
-                                </div>
-                                <div class="post-footer">
-                                    <div class="post-actions d-flex justify-content-between align-items-center">
-                                        <!-- Edit Post Button -->
-                                        <a class="btn btn-sm btn-warning" href="/Posts/Edit/@post.Id">Edit Post</a>
-                                        <!-- Comment Count -->
-                                        <a class="text-decoration-underline text-info" href="/Posts/Show/@post.Id">@post.Comments.Count() comments</a>
+                                    </div>
+                                    <div class="card-footer text-muted">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <a class="btn btn-sm btn-warning" href="/Posts/Edit/@post.Id">Edit Post</a>
+                                            <a class="text-decoration-underline text-info" href="/Posts/Show/@post.Id">@post.Comments.Count comments</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <p>This user has not posted anything yet.</p>
-            }
-        </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p>This user has not posted anything yet.</p>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">This user's posts are private. Follow them to view their content.</p>
         }
     </div>
-    
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
