@@ -89,18 +89,10 @@ namespace Connectify.Controllers
             return View();
         }
 
-
-        // CreateAsync - metoda care adauga un post in baza de date
-        [Authorize(Roles = "User,Admin")]
+        [Authorize(Roles ="User,Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateAsync(Post post, IFormFile Media)
         {
-            if (post == null)
-            {
-                TempData["ErrorMessage"] = "Invalid post data.";
-                return RedirectToAction("Index");
-            }
-
             if (Media != null && Media.Length > 0)
             {
                 var mediaPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", Media.FileName);
@@ -119,6 +111,8 @@ namespace Connectify.Controllers
 
             post.PostedAt = DateTime.Now;
 
+
+            // asociem userul curent postarii
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser != null)
             {
@@ -144,9 +138,6 @@ namespace Connectify.Controllers
         }
 
 
-
-
-        // edit
         [Authorize(Roles = "User,Admin")]
         public IActionResult Edit(int id)
         {

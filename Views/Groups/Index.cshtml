@@ -23,6 +23,13 @@
             // verificam daca utilizatorul este deja parte din grup
             var isUserInGroup = ((List<int>)ViewBag.UserGroups).Contains(group.Id);
 
+            // verificam daca utilizatorul este in pending
+            var isPending = ((List<int>)ViewBag.PendingGroups).Contains(group.Id);
+
+            // verificam daca utilizatorul este admin sau creator al grupului
+            var isAdmin = ViewBag.IsAdmin != null && (bool)ViewBag.IsAdmin;
+            var isCreator = group.UserId == ViewBag.CurrentUserId;
+
             <div class="card mb-3 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">@group.GroupName</h5>
@@ -41,9 +48,22 @@
                         <!-- buton pt a vedea continutul grupului daca userul e membru -->
                         <a href="@Url.Action("Show", "Groups", new { id = group.Id })" class="btn btn-primary">See Group Content</a>
                     }
+                    else if (isPending)
+                    {
+                        <!-- buton pending daca utilizatorul este in cerere -->
+                        <button class="btn btn-warning" disabled>Pending</button>
+                    }
+                    else if (isAdmin || isCreator)
+                    {
+                        <!-- adminii si creatorul grupului pot da join direct -->
+                        <form asp-action="JoinGroup" asp-controller="Groups" method="post">
+                            <input type="hidden" name="id" value="@group.Id" />
+                            <button type="submit" class="btn btn-success">Join Group</button>
+                        </form>
+                    }
                     else
                     {
-                        <!-- formular pentru alaturarea la grupa daca userul nu este membru -->
+                        <!-- formular pentru alaturarea la grup pentru user normal -->
                         <form asp-action="JoinGroup" asp-controller="Groups" method="post">
                             <input type="hidden" name="id" value="@group.Id" />
                             <button type="submit" class="btn btn-success">Join Group</button>

@@ -3,29 +3,74 @@
 @inject UserManager<ApplicationUser> UserManager
 
 @{
-    ViewBag.Title = Model.GroupName ?? "Group Details";
+    if (Model != null)
+    {
+        ViewBag.Title = Model.GroupName;
+    }
+    else
+    {
+        ViewBag.Title = "Group not found";
+    }
 }
 
-<div class="container my-5">
-    <!-- titlu grup -->
-    <div class="row mb-4">
-        <div class="col text-center">
-            <h1 class="display-4">@Model.GroupName</h1>
-            <p class="text-muted">@Model.Description</p>
+
+    <h2 class="text-center">@Model.GroupName</h2>
+    <p class="text-muted text-center">@Model.Description</p>
+
+    <hr />
+
+    <!--tempdata-->
+    @if (TempData.ContainsKey("message"))
+    {
+        <div class="alert @(TempData["messageType"] ?? "alert-info")">
+            @TempData["message"]
         </div>
+    }
+
+    <!--actiuni grup -->
+    <div class="d-flex justify-content-between my-3">
+        @if (User.IsInRole("Admin") || Model.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+        {
+            <a asp-action="Edit" asp-controller="Groups" asp-route-id="@Model.Id" class="btn btn-primary">Edit Group</a>
+
+            <!--verificam daca grupul poate fi sters -->
+            @if (Model.UserGroups.Count <= 1)
+            {
+                <form asp-action="Delete" asp-controller="Groups" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this group?');">
+                    <button type="submit" class="btn btn-danger">Delete Group</button>
+                </form>
+            }
+            else
+            {
+                <p class="text-warning">
+                    This group has multiple members and cannot be deleted. Remove all members first.
+                </p>
+            }
+        }
+
+        <!--leave button -->
+        @if (User.IsInRole("User") || User.IsInRole("Admin"))
+        {
+            <!-- verificam daca userul este singurul membru -->
+            @if (Model.UserGroups.Count > 1)
+            {
+                <form asp-action="LeaveGroup" asp-controller="Groups" method="post" onsubmit="return confirm('Are you sure you want to leave this group?');">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-door-open"></i> Leave Group
+                    </button>
+                </form>
+            }
+            else
+            {
+                <p class="text-warning">
+                    You are the only member of this group. You cannot leave, but you can delete the group.
+                </p>
+            }
+        }
     </div>
 
-    <!-- mesaje flash -->
-@*     @if (TempData.ContainsKey("message"))
-    {
-        <div class="row mb-4">
-            <div class="col">
-                <div class="alert @(TempData["messageType"] != null ? TempData["messageType"] : "alert-info")">
-                    @TempData["message"]
-                </div>
-            </div>
-        </div>
-    } *@
+
 
     <!-- mesaje din grup -->
     <div class="row mb-4">
@@ -71,24 +116,27 @@
         </div>
     </div>
 
+
     <!-- adaugare mesaj -->
     <div class="row mb-4">
         <div class="col">
             <h4>Add a New Message</h4>
-            <form asp-action="Show" asp-controller="Groups" method="post">
-                <input type="hidden" name="id" value="@Model?.Id ?? 0" />
-                <div class="form-group mb-3">
-                    <textarea name="TextMessage" class="form-control" placeholder="Write your message here..." required></textarea>
-                </div>
-                <button type="submit" class="btn btn-success">Send Message</button>
+            <form method="post" asp-action="Show" asp-controller="Groups" asp-route-id="@Model.Id">
+            <div class="form-group">
+                <input type="hidden" name="GroupId" value="@Model.Id" />
+                @*  <label for="TextMessage">Message Content</label> *@
+                <textarea class="form-control" name="TextMessage" id="TextMessage" placeholder="Type your message here..." required></textarea>
+                @Html.ValidationMessage("TextMessage", null, new { @class = "text-danger" })
+            </div>
+                <button type="submit" class="btn btn-primary mt-3">Send Message</button>
             </form>
         </div>
     </div>
 
-    <!-- membrii grupului -->
-    @if (Model.UserGroups != null)
-    {
-        <div class="row">
+    <!--membrii grupului -->
+    <div class="row">
+        @if (Model.UserGroups != null)
+        {
             <div class="col-md-6">
                 <h3>Group Members</h3>
                 <ul class="list-group">
@@ -96,7 +144,9 @@
                     {
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             @member.User.UserName
-                            @if (User.IsInRole("Admin") || Model.UserId == ViewBag.CurrentUserId)
+
+                            <!--ascund butonul de remove atunci cand raman cu un singur membru-->
+                            @if (Model.UserGroups.Count > 1 && (User.IsInRole("Admin") || Model.UserId == ViewBag.CurrentUserId))
                             {
                                 <form asp-action="RemoveMember" asp-controller="Groups" method="post" class="d-inline">
                                     <input type="hidden" name="groupId" value="@Model.Id" />
@@ -108,30 +158,40 @@
                     }
                 </ul>
             </div>
-
-            <div class="col-md-6">
-                <h3>Pending Requests</h3>
-                <ul class="list-group">
-                    @foreach (var request in Model.UserGroups.Where(ug => !ug.IsAccepted))
-                    {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @request.User.UserName
-                            <div class="d-flex">
-                                <form asp-action="ApproveUser" asp-controller="Groups" method="post" class="me-2">
-                                    <input type="hidden" name="groupId" value="@Model.Id" />
-                                    <input type="hidden" name="userId" value="@request.UserId" />
-                                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                </form>
-                                <form asp-action="DeclineUser" asp-controller="Groups" method="post">
-                                    <input type="hidden" name="groupId" value="@Model.Id" />
-                                    <input type="hidden" name="userId" value="@request.UserId" />
-                                    <button type="submit" class="btn btn-sm btn-danger">Decline</button>
-                                </form>
-                            </div>
-                        </li>
-                    }
-                </ul>
+        }
+        else
+        {
+            <div class="col">
+                <p class="text-muted">No members in this group yet.</p>
             </div>
+        }
+    
+
+        <!--pending requests -->
+        <div class="col-md-6">
+            <h3>Pending Requests</h3>
+            <ul class="list-group">
+                @foreach (var request in Model.UserGroups.Where(ug => !ug.IsAccepted))
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @request.User.UserName
+                        <div class="d-flex">
+                            <form asp-action="ApproveUser" asp-controller="Groups" method="post" class="me-2">
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                <input type="hidden" name="userId" value="@request.UserId" />
+                                <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                            </form>
+                            <form asp-action="DeclineUser" asp-controller="Groups" method="post">
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                <input type="hidden" name="userId" value="@request.UserId" />
+                                <button type="submit" class="btn btn-sm btn-danger">Decline</button>
+                            </form>
+                        </div>
+                    </li>
+                }
+            </ul>
         </div>
-    }
-</div>
+    </div>
+
+
+
